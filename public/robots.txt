@@ -1,0 +1,26 @@
+# robots.txt para Al Andalus AI Corp
+# Fase 13: SEO
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://al-andalus-ai.com/sitemap.xml
+
+# Permitir todos los bots de búsqueda
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+# Bloqueo de rutas sensibles (si las hubiera)
+# Disallow: /api/
+# Disallow: /admin/
+# Disallow: /private/
+
+# Crawl-delay para no sobrecargar el servidor
+Crawl-delay: 1
