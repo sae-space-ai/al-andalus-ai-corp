@@ -1,12 +1,11 @@
 import { useState, useEffect, useRef, useCallback, type ReactNode } from 'react';
-import { AreaChart, Area, BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 
 /* ═══════════════════════════════════════════════════
-   AL ANDALUS AI CORP — FASE 6
-   Live Demo, Performance, Industries, Wizard, Roadmap
+   AL ANDALUS AI CORP — FASE 7: REVISIÓN COMPLETA
+   Optimizado para rendimiento, accesibilidad y mantenimiento
    ═══════════════════════════════════════════════════ */
 
-let lang: 'es' | 'en' = 'es';
+type Lang = 'es' | 'en';
 
 /* ─────────────── Hooks ─────────────── */
 
@@ -56,12 +55,6 @@ function useCountUp(end: number, duration = 2000, start = false) {
     requestAnimationFrame(step);
   }, [end, duration, start]);
   return val;
-}
-
-function useLanguage() {
-  const [currentLang, setLang] = useState<'es' | 'en'>('es');
-  useEffect(() => { lang = currentLang; }, [currentLang]);
-  return { lang: currentLang, setLang };
 }
 
 /* ─────────────── Animated Section ─────────────── */
@@ -135,7 +128,7 @@ function BackToTop({ dark }: { dark: boolean }) {
   }, []);
   if (!visible) return null;
   return (
-    <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className={`fixed bottom-8 right-8 z-50 w-12 h-12 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 hover:-translate-y-1 ${dark ? 'bg-green-700 text-white hover:bg-green-600' : 'bg-green-600 text-white hover:bg-green-700'}`}>
+    <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className={`fixed bottom-8 right-8 z-50 w-12 h-12 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 hover:-translate-y-1 ${dark ? 'bg-green-700 text-white hover:bg-green-600' : 'bg-green-600 text-white hover:bg-green-700'}`} aria-label="Back to top">
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" /></svg>
     </button>
   );
@@ -143,7 +136,7 @@ function BackToTop({ dark }: { dark: boolean }) {
 
 /* ─────────────── Navbar ─────────────── */
 
-function Navbar({ dark, toggleTheme, lang, setLang }: { dark: boolean; toggleTheme: () => void; lang: 'es' | 'en'; setLang: (l: 'es' | 'en') => void }) {
+function Navbar({ dark, toggleTheme, lang, setLang }: { dark: boolean; toggleTheme: () => void; lang: Lang; setLang: (l: Lang) => void }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   useEffect(() => { const h = () => setScrolled(window.scrollY > 20); window.addEventListener('scroll', h); return () => window.removeEventListener('scroll', h); }, []);
@@ -178,7 +171,7 @@ function Navbar({ dark, toggleTheme, lang, setLang }: { dark: boolean; toggleThe
               <button onClick={() => setLang(lang === 'es' ? 'en' : 'es')} className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${dark ? 'bg-green-800 text-green-300 hover:bg-green-700' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}>
                 {lang === 'es' ? '🇬🇧 EN' : '🇪🇸 ES'}
               </button>
-              <button onClick={toggleTheme} className={`p-2 rounded-full transition-all ${dark ? 'bg-green-800 text-yellow-300 hover:bg-green-700' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}>
+              <button onClick={toggleTheme} className={`p-2 rounded-full transition-all ${dark ? 'bg-green-800 text-yellow-300 hover:bg-green-700' : 'bg-green-100 text-green-700 hover:bg-green-200'}`} aria-label="Toggle theme">
                 {dark ? '☀️' : '🌙'}
               </button>
             </div>
@@ -190,10 +183,10 @@ function Navbar({ dark, toggleTheme, lang, setLang }: { dark: boolean; toggleThe
             <button onClick={() => setLang(lang === 'es' ? 'en' : 'es')} className={`px-3 py-1 rounded-full text-xs font-bold ${dark ? 'bg-green-800 text-green-300' : 'bg-green-100 text-green-700'}`}>
               {lang === 'es' ? 'EN' : 'ES'}
             </button>
-            <button onClick={toggleTheme} className={`p-2 rounded-full ${dark ? 'bg-green-800 text-yellow-300' : 'bg-green-100 text-green-700'}`}>
+            <button onClick={toggleTheme} className={`p-2 rounded-full ${dark ? 'bg-green-800 text-yellow-300' : 'bg-green-100 text-green-700'}`} aria-label="Toggle theme">
               {dark ? '☀️' : '🌙'}
             </button>
-            <button onClick={() => setMobileOpen(!mobileOpen)} className={dark ? 'text-white' : 'text-green-800'}>
+            <button onClick={() => setMobileOpen(!mobileOpen)} className={dark ? 'text-white' : 'text-green-800'} aria-label="Toggle menu">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {mobileOpen ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /> : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />}
               </svg>
@@ -217,7 +210,7 @@ function Navbar({ dark, toggleTheme, lang, setLang }: { dark: boolean; toggleThe
 
 /* ─────────────── Hero ─────────────── */
 
-function HeroSection({ dark }: { dark: boolean }) {
+function HeroSection({ dark, lang }: { dark: boolean; lang: Lang }) {
   const [typedText, setTypedText] = useState('');
   const fullText = 'npx al-andalus-ai@latest setup';
 
@@ -290,14 +283,13 @@ function HeroSection({ dark }: { dark: boolean }) {
   );
 }
 
-/* ─────────────── Live Analysis Demo (NEW - FASE 6) ─────────────── */
+/* ─────────────── Live Analysis Demo ─────────────── */
 
-function LiveAnalysisDemo({ dark }: { dark: boolean }) {
+function LiveAnalysisDemo({ dark, lang }: { dark: boolean; lang: Lang }) {
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [logs, setLogs] = useState<string[]>([]);
   const [results, setResults] = useState<any>(null);
-  const { ref, inView } = useInView(0.3);
 
   const analysisSteps = lang === 'es' ? [
     { msg: '🔍 Iniciando análisis del programa...', delay: 500 },
@@ -359,7 +351,7 @@ function LiveAnalysisDemo({ dark }: { dark: boolean }) {
   };
 
   return (
-    <section id="live-demo" ref={ref} className={`py-24 relative overflow-hidden ${dark ? 'bg-green-950' : 'bg-white'}`}>
+    <section id="live-demo" className={`py-24 relative overflow-hidden ${dark ? 'bg-green-950' : 'bg-white'}`}>
       <div className="absolute inset-0 opacity-[0.02]"><GeometricPattern /></div>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <AnimatedSection>
@@ -375,7 +367,6 @@ function LiveAnalysisDemo({ dark }: { dark: boolean }) {
 
         <AnimatedSection>
           <div className={`rounded-3xl p-6 sm:p-8 shadow-2xl border ${dark ? 'bg-green-900/50 border-green-700/50' : 'bg-white border-green-100'}`}>
-            {/* Terminal */}
             <div className="bg-green-950 rounded-xl overflow-hidden mb-6 border border-green-800/50">
               <div className="px-4 py-3 flex items-center gap-3 border-b border-green-800/50">
                 <div className="flex gap-2">
@@ -396,7 +387,6 @@ function LiveAnalysisDemo({ dark }: { dark: boolean }) {
               </div>
             </div>
 
-            {/* Progress bar */}
             {(isRunning || results) && (
               <div className="mb-6">
                 <div className="flex justify-between mb-2">
@@ -413,36 +403,33 @@ function LiveAnalysisDemo({ dark }: { dark: boolean }) {
               </div>
             )}
 
-            {/* Start button */}
             {!isRunning && !results && (
               <button onClick={startAnalysis} className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-4 rounded-full font-bold text-lg transition-all shadow-lg shadow-green-700/30 hover:shadow-xl hover:-translate-y-0.5">
                 ▶ {lang === 'es' ? 'Iniciar Análisis' : 'Start Analysis'}
               </button>
             )}
 
-            {/* Results */}
             {results && (
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 animate-scale-in">
-                {[
-                  { label: lang === 'es' ? 'Módulos' : 'Modules', value: results.modules, icon: '📦' },
-                  { label: lang === 'es' ? 'Dependencias' : 'Dependencies', value: results.dependencies, icon: '🔗' },
-                  { label: lang === 'es' ? 'Funciones' : 'Functions', value: results.functions, icon: '⚙️' },
-                  { label: lang === 'es' ? 'Vulnerabilidades' : 'Vulnerabilities', value: results.vulnerabilities, icon: '⚠️' },
-                  { label: lang === 'es' ? 'Tiempo' : 'Time', value: results.time, icon: '⏱️' },
-                ].map((stat, i) => (
-                  <div key={i} className={`rounded-xl p-4 text-center ${dark ? 'bg-green-800/50' : 'bg-green-50'}`}>
-                    <div className="text-2xl mb-2">{stat.icon}</div>
-                    <p className={`text-2xl font-black ${dark ? 'text-green-400' : 'text-green-700'}`}>{stat.value}</p>
-                    <p className={`text-xs ${dark ? 'text-green-500' : 'text-green-600'}`}>{stat.label}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {results && (
-              <button onClick={startAnalysis} className={`w-full mt-4 py-3 rounded-full font-semibold transition-all ${dark ? 'bg-green-800 text-green-300 hover:bg-green-700' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}>
-                🔄 {lang === 'es' ? 'Analizar de nuevo' : 'Analyze again'}
-              </button>
+              <>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 animate-scale-in">
+                  {[
+                    { label: lang === 'es' ? 'Módulos' : 'Modules', value: results.modules, icon: '📦' },
+                    { label: lang === 'es' ? 'Dependencias' : 'Dependencies', value: results.dependencies, icon: '🔗' },
+                    { label: lang === 'es' ? 'Funciones' : 'Functions', value: results.functions, icon: '⚙️' },
+                    { label: lang === 'es' ? 'Vulnerabilidades' : 'Vulnerabilities', value: results.vulnerabilities, icon: '⚠️' },
+                    { label: lang === 'es' ? 'Tiempo' : 'Time', value: results.time, icon: '⏱️' },
+                  ].map((stat, i) => (
+                    <div key={i} className={`rounded-xl p-4 text-center ${dark ? 'bg-green-800/50' : 'bg-green-50'}`}>
+                      <div className="text-2xl mb-2">{stat.icon}</div>
+                      <p className={`text-2xl font-black ${dark ? 'text-green-400' : 'text-green-700'}`}>{stat.value}</p>
+                      <p className={`text-xs ${dark ? 'text-green-500' : 'text-green-600'}`}>{stat.label}</p>
+                    </div>
+                  ))}
+                </div>
+                <button onClick={startAnalysis} className={`w-full mt-4 py-3 rounded-full font-semibold transition-all ${dark ? 'bg-green-800 text-green-300 hover:bg-green-700' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}>
+                  🔄 {lang === 'es' ? 'Analizar de nuevo' : 'Analyze again'}
+                </button>
+              </>
             )}
           </div>
         </AnimatedSection>
@@ -451,9 +438,9 @@ function LiveAnalysisDemo({ dark }: { dark: boolean }) {
   );
 }
 
-/* ─────────────── Performance Comparison (NEW - FASE 6) ─────────────── */
+/* ─────────────── Performance Comparison ─────────────── */
 
-function PerformanceComparison({ dark }: { dark: boolean }) {
+function PerformanceComparison({ dark, lang }: { dark: boolean; lang: Lang }) {
   const { ref, inView } = useInView(0.3);
   const [animated, setAnimated] = useState(false);
 
@@ -465,7 +452,7 @@ function PerformanceComparison({ dark }: { dark: boolean }) {
     { method: lang === 'es' ? 'Manual' : 'Manual', time: 40, color: 'from-red-500 to-red-600' },
     { method: 'IDA Pro', time: 28, color: 'from-orange-500 to-orange-600' },
     { method: 'Ghidra', time: 22, color: 'from-yellow-500 to-yellow-600' },
-    { method: lang === 'es' ? 'Al Andalus AI' : 'Al Andalus AI', time: 2, color: 'from-green-500 to-emerald-600' },
+    { method: 'Al Andalus AI', time: 2, color: 'from-green-500 to-emerald-600' },
   ];
 
   return (
@@ -498,7 +485,7 @@ function PerformanceComparison({ dark }: { dark: boolean }) {
                     >
                       {animated && (
                         <span className="text-white font-bold text-sm">
-                          {comp.time === 2 ? '20x más rápido' : comp.time === 40 ? '40h' : `${comp.time}h`}
+                          {comp.time === 2 ? (lang === 'es' ? '20x más rápido' : '20x faster') : `${comp.time}h`}
                         </span>
                       )}
                     </div>
@@ -519,21 +506,21 @@ function PerformanceComparison({ dark }: { dark: boolean }) {
   );
 }
 
-/* ─────────────── Industry Use Cases (NEW - FASE 6) ─────────────── */
+/* ─────────────── Industry Use Cases ─────────────── */
 
-function IndustryUseCases({ dark }: { dark: boolean }) {
+function IndustryUseCases({ dark, lang }: { dark: boolean; lang: Lang }) {
   const [activeIndustry, setActiveIndustry] = useState(0);
 
   const industries = [
     {
       icon: '🎮',
-      title: lang === 'es' ? 'Gaming' : 'Gaming',
+      title: 'Gaming',
       desc: lang === 'es' ? 'Analiza mecánicas de juego, reconstruye lógica de IA enemiga, optimiza rendimiento' : 'Analyze game mechanics, reconstruct enemy AI logic, optimize performance',
       features: lang === 'es' ? ['Análisis de motores de juego', 'Reconstrucción de shaders', 'Optimización de assets'] : ['Game engine analysis', 'Shader reconstruction', 'Asset optimization'],
     },
     {
       icon: '🏦',
-      title: lang === 'es' ? 'Fintech' : 'Fintech',
+      title: 'Fintech',
       desc: lang === 'es' ? 'Auditoría de seguridad, análisis de protocolos de pago, verificación de cifrado' : 'Security auditing, payment protocol analysis, encryption verification',
       features: lang === 'es' ? ['Auditoría de seguridad', 'Análisis de protocolos', 'Verificación de cifrado'] : ['Security auditing', 'Protocol analysis', 'Encryption verification'],
     },
@@ -551,13 +538,13 @@ function IndustryUseCases({ dark }: { dark: boolean }) {
     },
     {
       icon: '🌐',
-      title: lang === 'es' ? 'Web Development' : 'Web Development',
+      title: 'Web Development',
       desc: lang === 'es' ? 'Análisis de SPAs, reconstrucción de APIs, auditoría de seguridad web' : 'SPA analysis, API reconstruction, web security auditing',
       features: lang === 'es' ? ['Análisis de aplicaciones web', 'Reconstrucción de APIs', 'Auditoría de seguridad'] : ['Web app analysis', 'API reconstruction', 'Security auditing'],
     },
     {
       icon: '🏥',
-      title: lang === 'es' ? 'Healthcare' : 'Healthcare',
+      title: 'Healthcare',
       desc: lang === 'es' ? 'Análisis de dispositivos médicos, verificación de cumplimiento, investigación de protocolos' : 'Medical device analysis, compliance verification, protocol investigation',
       features: lang === 'es' ? ['Análisis de dispositivos médicos', 'Verificación de cumplimiento', 'Investigación de protocolos'] : ['Medical device analysis', 'Compliance verification', 'Protocol investigation'],
     },
@@ -579,7 +566,6 @@ function IndustryUseCases({ dark }: { dark: boolean }) {
         </AnimatedSection>
 
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Industry selector */}
           <div className="lg:col-span-1 space-y-3">
             {industries.map((industry, i) => (
               <button
@@ -598,7 +584,6 @@ function IndustryUseCases({ dark }: { dark: boolean }) {
             ))}
           </div>
 
-          {/* Industry details */}
           <div className="lg:col-span-2">
             <div className={`rounded-3xl p-8 shadow-2xl border h-full ${dark ? 'bg-green-900/50 border-green-700/50' : 'bg-white border-green-100'}`}>
               <div className="text-6xl mb-6">{industries[activeIndustry].icon}</div>
@@ -626,61 +611,21 @@ function IndustryUseCases({ dark }: { dark: boolean }) {
   );
 }
 
-/* ─────────────── Getting Started Wizard (NEW - FASE 6) ─────────────── */
+/* ─────────────── Getting Started Wizard ─────────────── */
 
-function GettingStartedWizard({ dark }: { dark: boolean }) {
+function GettingStartedWizard({ dark, lang }: { dark: boolean; lang: Lang }) {
   const [currentStep, setCurrentStep] = useState(0);
 
   const steps = lang === 'es' ? [
-    {
-      title: 'Instala Al Andalus AI',
-      icon: '📦',
-      content: 'Ejecuta el comando de instalación en tu terminal',
-      code: 'npx al-andalus-ai@latest setup',
-    },
-    {
-      title: 'Conecta tu agente',
-      icon: '🔗',
-      content: 'Conecta Al Andalus AI a tu agente de codificación favorito',
-      code: 'al-andalus-ai connect --agent=claude',
-    },
-    {
-      title: 'Analiza tu primer programa',
-      icon: '🔍',
-      content: 'Pregunta a tu agente sobre cualquier software',
-      code: 'Analiza esta aplicación y explícame cómo funciona',
-    },
-    {
-      title: '¡Listo!',
-      icon: '🚀',
-      content: 'Ya puedes usar Al Andalus AI para ingeniería inversa',
-      code: '',
-    },
+    { title: 'Instala Al Andalus AI', icon: '📦', content: 'Ejecuta el comando de instalación en tu terminal', code: 'npx al-andalus-ai@latest setup' },
+    { title: 'Conecta tu agente', icon: '🔗', content: 'Conecta Al Andalus AI a tu agente de codificación favorito', code: 'al-andalus-ai connect --agent=claude' },
+    { title: 'Analiza tu primer programa', icon: '🔍', content: 'Pregunta a tu agente sobre cualquier software', code: 'Analiza esta aplicación y explícame cómo funciona' },
+    { title: '¡Listo!', icon: '🚀', content: 'Ya puedes usar Al Andalus AI para ingeniería inversa', code: '' },
   ] : [
-    {
-      title: 'Install Al Andalus AI',
-      icon: '📦',
-      content: 'Run the installation command in your terminal',
-      code: 'npx al-andalus-ai@latest setup',
-    },
-    {
-      title: 'Connect your agent',
-      icon: '🔗',
-      content: 'Connect Al Andalus AI to your favorite coding agent',
-      code: 'al-andalus-ai connect --agent=claude',
-    },
-    {
-      title: 'Analyze your first program',
-      icon: '🔍',
-      content: 'Ask your agent about any software',
-      code: 'Analyze this application and explain how it works',
-    },
-    {
-      title: 'Ready!',
-      icon: '🚀',
-      content: 'You can now use Al Andalus AI for reverse engineering',
-      code: '',
-    },
+    { title: 'Install Al Andalus AI', icon: '📦', content: 'Run the installation command in your terminal', code: 'npx al-andalus-ai@latest setup' },
+    { title: 'Connect your agent', icon: '🔗', content: 'Connect Al Andalus AI to your favorite coding agent', code: 'al-andalus-ai connect --agent=claude' },
+    { title: 'Analyze your first program', icon: '🔍', content: 'Ask your agent about any software', code: 'Analyze this application and explain how it works' },
+    { title: 'Ready!', icon: '🚀', content: 'You can now use Al Andalus AI for reverse engineering', code: '' },
   ];
 
   return (
@@ -699,9 +644,8 @@ function GettingStartedWizard({ dark }: { dark: boolean }) {
 
         <AnimatedSection>
           <div className={`rounded-3xl p-8 shadow-2xl border ${dark ? 'bg-green-900/50 border-green-700/50' : 'bg-white border-green-100'}`}>
-            {/* Step indicators */}
             <div className="flex items-center justify-between mb-12">
-              {steps.map((step, i) => (
+              {steps.map((_, i) => (
                 <div key={i} className="flex items-center">
                   <button
                     onClick={() => setCurrentStep(i)}
@@ -721,7 +665,6 @@ function GettingStartedWizard({ dark }: { dark: boolean }) {
               ))}
             </div>
 
-            {/* Step content */}
             <div className="text-center mb-8">
               <div className="text-6xl mb-4">{steps[currentStep].icon}</div>
               <h3 className={`text-2xl font-black mb-2 ${dark ? 'text-white' : 'text-green-900'}`}>
@@ -732,14 +675,12 @@ function GettingStartedWizard({ dark }: { dark: boolean }) {
               </p>
             </div>
 
-            {/* Code block */}
             {steps[currentStep].code && (
               <div className="bg-green-950 rounded-xl p-6 font-mono text-sm border border-green-800/50 mb-8">
                 <p className="text-green-400">$ <span className="text-white">{steps[currentStep].code}</span></p>
               </div>
             )}
 
-            {/* Navigation buttons */}
             <div className="flex justify-between">
               <button
                 onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
@@ -769,83 +710,19 @@ function GettingStartedWizard({ dark }: { dark: boolean }) {
   );
 }
 
-/* ─────────────── Roadmap Timeline (NEW - FASE 6) ─────────────── */
+/* ─────────────── Roadmap Timeline ─────────────── */
 
-function RoadmapTimeline({ dark }: { dark: boolean }) {
+function RoadmapTimeline({ dark, lang }: { dark: boolean; lang: Lang }) {
   const roadmap = lang === 'es' ? [
-    {
-      quarter: 'Q1 2026',
-      status: 'completed',
-      items: [
-        'Soporte para Rust',
-        'Análisis de WebAssembly',
-        'Mejoras de rendimiento 300%',
-      ],
-    },
-    {
-      quarter: 'Q2 2026',
-      status: 'in-progress',
-      items: [
-        'Integración con VS Code',
-        'API pública beta',
-        'Soporte para Swift/Kotlin',
-      ],
-    },
-    {
-      quarter: 'Q3 2026',
-      status: 'planned',
-      items: [
-        'Análisis de blockchain',
-        'Plugin para JetBrains',
-        'Modo colaborativo',
-      ],
-    },
-    {
-      quarter: 'Q4 2026',
-      status: 'planned',
-      items: [
-        'Análisis de IoT',
-        'Soporte para quantum computing',
-        'Marketplace de plugins',
-      ],
-    },
+    { quarter: 'Q1 2026', status: 'completed', items: ['Soporte para Rust', 'Análisis de WebAssembly', 'Mejoras de rendimiento 300%'] },
+    { quarter: 'Q2 2026', status: 'in-progress', items: ['Integración con VS Code', 'API pública beta', 'Soporte para Swift/Kotlin'] },
+    { quarter: 'Q3 2026', status: 'planned', items: ['Análisis de blockchain', 'Plugin para JetBrains', 'Modo colaborativo'] },
+    { quarter: 'Q4 2026', status: 'planned', items: ['Análisis de IoT', 'Soporte para quantum computing', 'Marketplace de plugins'] },
   ] : [
-    {
-      quarter: 'Q1 2026',
-      status: 'completed',
-      items: [
-        'Rust support',
-        'WebAssembly analysis',
-        '300% performance improvements',
-      ],
-    },
-    {
-      quarter: 'Q2 2026',
-      status: 'in-progress',
-      items: [
-        'VS Code integration',
-        'Public API beta',
-        'Swift/Kotlin support',
-      ],
-    },
-    {
-      quarter: 'Q3 2026',
-      status: 'planned',
-      items: [
-        'Blockchain analysis',
-        'JetBrains plugin',
-        'Collaborative mode',
-      ],
-    },
-    {
-      quarter: 'Q4 2026',
-      status: 'planned',
-      items: [
-        'IoT analysis',
-        'Quantum computing support',
-        'Plugin marketplace',
-      ],
-    },
+    { quarter: 'Q1 2026', status: 'completed', items: ['Rust support', 'WebAssembly analysis', '300% performance improvements'] },
+    { quarter: 'Q2 2026', status: 'in-progress', items: ['VS Code integration', 'Public API beta', 'Swift/Kotlin support'] },
+    { quarter: 'Q3 2026', status: 'planned', items: ['Blockchain analysis', 'JetBrains plugin', 'Collaborative mode'] },
+    { quarter: 'Q4 2026', status: 'planned', items: ['IoT analysis', 'Quantum computing support', 'Plugin marketplace'] },
   ];
 
   const getStatusColor = (status: string) => {
@@ -925,7 +802,7 @@ function RoadmapTimeline({ dark }: { dark: boolean }) {
 
 /* ─────────────── Pricing ─────────────── */
 
-function PricingSection({ dark }: { dark: boolean }) {
+function PricingSection({ dark, lang }: { dark: boolean; lang: Lang }) {
   const [annual, setAnnual] = useState(true);
   const plans = [
     { name: lang === 'es' ? 'Explorador' : 'Explorer', price: 0, features: lang === 'es' ? ['5 análisis/mes', 'Soporte email', 'Guías básicas'] : ['5 analyses/month', 'Email support', 'Basic guides'], popular: false },
@@ -980,7 +857,7 @@ function PricingSection({ dark }: { dark: boolean }) {
 
 /* ─────────────── FAQ ─────────────── */
 
-function FAQSection({ dark }: { dark: boolean }) {
+function FAQSection({ dark, lang }: { dark: boolean; lang: Lang }) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const faqs = lang === 'es' ? [
     { q: '¿Qué es Al Andalus AI?', a: 'Es una herramienta de ingeniería inversa impulsada por IA que permite a tu agente de codificación inspeccionar, entender y reconstruir cualquier software.' },
@@ -1026,7 +903,7 @@ function FAQSection({ dark }: { dark: boolean }) {
 
 /* ─────────────── Newsletter ─────────────── */
 
-function NewsletterSection({ dark }: { dark: boolean }) {
+function NewsletterSection({ dark, lang }: { dark: boolean; lang: Lang }) {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
 
@@ -1058,7 +935,7 @@ function NewsletterSection({ dark }: { dark: boolean }) {
 
 /* ─────────────── Footer ─────────────── */
 
-function Footer({ dark }: { dark: boolean }) {
+function Footer({ dark, lang }: { dark: boolean; lang: Lang }) {
   return (
     <footer className={`py-16 relative overflow-hidden ${dark ? 'bg-green-950 border-t border-green-800' : 'bg-green-900'}`}>
       <div className="absolute inset-0 opacity-5"><GeometricPattern /></div>
@@ -1110,28 +987,27 @@ function Footer({ dark }: { dark: boolean }) {
 }
 
 /* ═══════════════════════════════════════════════════
-   APP
+   APP - Entry Point
    ═══════════════════════════════════════════════════ */
 
 export default function App() {
   const { dark, toggle } = useTheme();
-  const { lang: currentLang, setLang } = useLanguage();
-  lang = currentLang;
+  const [lang, setLang] = useState<Lang>('es');
 
   return (
     <div className={`min-h-screen font-sans transition-colors duration-500 ${dark ? 'bg-green-950 text-white' : 'bg-white text-green-900'}`}>
       <ScrollProgressBar />
-      <Navbar dark={dark} toggleTheme={toggle} lang={currentLang} setLang={setLang} />
-      <HeroSection dark={dark} />
-      <LiveAnalysisDemo dark={dark} />
-      <PerformanceComparison dark={dark} />
-      <IndustryUseCases dark={dark} />
-      <GettingStartedWizard dark={dark} />
-      <RoadmapTimeline dark={dark} />
-      <PricingSection dark={dark} />
-      <FAQSection dark={dark} />
-      <NewsletterSection dark={dark} />
-      <Footer dark={dark} />
+      <Navbar dark={dark} toggleTheme={toggle} lang={lang} setLang={setLang} />
+      <HeroSection dark={dark} lang={lang} />
+      <LiveAnalysisDemo dark={dark} lang={lang} />
+      <PerformanceComparison dark={dark} lang={lang} />
+      <IndustryUseCases dark={dark} lang={lang} />
+      <GettingStartedWizard dark={dark} lang={lang} />
+      <RoadmapTimeline dark={dark} lang={lang} />
+      <PricingSection dark={dark} lang={lang} />
+      <FAQSection dark={dark} lang={lang} />
+      <NewsletterSection dark={dark} lang={lang} />
+      <Footer dark={dark} lang={lang} />
       <BackToTop dark={dark} />
     </div>
   );
