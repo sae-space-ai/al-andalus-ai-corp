@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+
+/* ─────────────── SVG Components ─────────────── */
 
 function GeometricPattern() {
   return (
-    <svg className="absolute inset-0 w-full h-full opacity-5" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+    <svg className="absolute inset-0 w-full h-full opacity-[0.04]" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <pattern id="andalusian-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
           <path d="M50 0 L100 50 L50 100 L0 50 Z" fill="none" stroke="currentColor" strokeWidth="0.5" />
@@ -20,84 +22,106 @@ function GeometricPattern() {
   );
 }
 
-function StarPattern({ className = '' }: { className?: string }) {
+function Star8({ className = '' }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <polygon
-        points="50,5 61,35 95,35 68,57 79,90 50,70 21,90 32,57 5,35 39,35"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1"
-      />
-      <polygon
-        points="50,20 57,40 78,40 62,53 68,73 50,62 32,73 38,53 22,40 43,40"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="0.5"
-      />
+      <polygon points="50,5 61,35 95,35 68,57 79,90 50,70 21,90 32,57 5,35 39,35" fill="none" stroke="currentColor" strokeWidth="1.5" />
+      <polygon points="50,20 57,40 78,40 62,53 68,73 50,62 32,73 38,53 22,40 43,40" fill="none" stroke="currentColor" strokeWidth="0.8" />
     </svg>
   );
 }
 
-function Navbar() {
+function ArabesqueDivider() {
+  return (
+    <div className="flex items-center justify-center py-8">
+      <svg width="300" height="30" viewBox="0 0 300 30" className="text-green-600/30">
+        <path d="M0 15 Q25 0 50 15 Q75 30 100 15 Q125 0 150 15 Q175 30 200 15 Q225 0 250 15 Q275 30 300 15" fill="none" stroke="currentColor" strokeWidth="1.5" />
+        <circle cx="150" cy="15" r="4" fill="currentColor" />
+        <circle cx="75" cy="15" r="2" fill="currentColor" />
+        <circle cx="225" cy="15" r="2" fill="currentColor" />
+      </svg>
+    </div>
+  );
+}
+
+/* ─────────────── Theme Hook ─────────────── */
+
+function useTheme() {
+  const [dark, setDark] = useState(false);
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', dark);
+  }, [dark]);
+  return { dark, toggle: () => setDark(d => !d) };
+}
+
+/* ─────────────── Navbar ─────────────── */
+
+function Navbar({ dark, toggleTheme }: { dark: boolean; toggleTheme: () => void }) {
   const [scrolled, setScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const h = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', h);
+    return () => window.removeEventListener('scroll', h);
   }, []);
 
+  const bg = dark
+    ? scrolled ? 'bg-green-950/95 backdrop-blur-md shadow-lg shadow-green-900/20' : 'bg-transparent'
+    : scrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-transparent';
+
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-transparent'}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${bg}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-700 to-green-900 rounded-lg flex items-center justify-center shadow-md">
-              <StarPattern className="w-7 h-7 text-white" />
+            <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-green-800 rounded-xl flex items-center justify-center shadow-lg shadow-green-700/30 animate-pulse-glow">
+              <Star8 className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-green-900 leading-tight">Al Andalus AI</h1>
-              <p className="text-[10px] text-green-600 font-medium tracking-wider uppercase">Corp</p>
+              <h1 className={`text-lg font-black tracking-tight ${dark ? 'text-white' : 'text-green-900'}`}>Al Andalus AI</h1>
+              <p className="text-[10px] text-green-500 font-semibold tracking-[0.2em] uppercase">Corporation</p>
             </div>
           </div>
-          
+
           <div className="hidden md:flex items-center space-x-8">
-            <a href="#features" className="text-green-800 hover:text-green-600 font-medium transition-colors">Características</a>
-            <a href="#how-it-works" className="text-green-800 hover:text-green-600 font-medium transition-colors">Cómo Funciona</a>
-            <a href="#showcases" className="text-green-800 hover:text-green-600 font-medium transition-colors">Casos</a>
-            <a href="#guides" className="text-green-800 hover:text-green-600 font-medium transition-colors">Guías</a>
-            <button className="bg-green-700 hover:bg-green-800 text-white px-5 py-2 rounded-full font-medium transition-all shadow-md hover:shadow-lg">
+            {['Características', 'Cómo Funciona', 'Dino Lab', 'Calculadora', 'Casos', 'Guías'].map(item => (
+              <a key={item} href={`#${item.toLowerCase().replace(/ /g, '-')}`} className={`text-sm font-medium transition-colors hover:text-green-500 ${dark ? 'text-green-300' : 'text-green-800'}`}>
+                {item}
+              </a>
+            ))}
+            <button onClick={toggleTheme} className={`p-2 rounded-full transition-all ${dark ? 'bg-green-800 text-yellow-300 hover:bg-green-700' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}>
+              {dark ? '☀️' : '🌙'}
+            </button>
+            <button className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-6 py-2 rounded-full font-semibold transition-all shadow-lg shadow-green-700/30 hover:shadow-xl hover:-translate-y-0.5">
               Comenzar
             </button>
           </div>
 
-          <button 
-            className="md:hidden text-green-800"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {mobileMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
+          <div className="flex md:hidden items-center space-x-3">
+            <button onClick={toggleTheme} className={`p-2 rounded-full ${dark ? 'bg-green-800 text-yellow-300' : 'bg-green-100 text-green-700'}`}>
+              {dark ? '☀️' : '🌙'}
+            </button>
+            <button onClick={() => setMobileOpen(!mobileOpen)} className={dark ? 'text-white' : 'text-green-800'}>
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {mobileOpen
+                  ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />}
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
-      {mobileMenuOpen && (
-        <div className="md:hidden bg-white/95 backdrop-blur-md border-t border-green-100">
+      {mobileOpen && (
+        <div className={`md:hidden backdrop-blur-md border-t ${dark ? 'bg-green-950/95 border-green-800' : 'bg-white/95 border-green-100'}`}>
           <div className="px-4 py-4 space-y-3">
-            <a href="#features" className="block text-green-800 font-medium py-2">Características</a>
-            <a href="#how-it-works" className="block text-green-800 font-medium py-2">Cómo Funciona</a>
-            <a href="#showcases" className="block text-green-800 font-medium py-2">Casos</a>
-            <a href="#guides" className="block text-green-800 font-medium py-2">Guías</a>
-            <button className="w-full bg-green-700 text-white px-5 py-2 rounded-full font-medium">
-              Comenzar
-            </button>
+            {['Características', 'Cómo Funciona', 'Dino Lab', 'Calculadora', 'Casos', 'Guías'].map(item => (
+              <a key={item} href={`#${item.toLowerCase().replace(/ /g, '-')}`} className={`block font-medium py-2 ${dark ? 'text-green-300' : 'text-green-800'}`} onClick={() => setMobileOpen(false)}>
+                {item}
+              </a>
+            ))}
+            <button className="w-full bg-green-700 text-white px-5 py-2.5 rounded-full font-semibold">Comenzar</button>
           </div>
         </div>
       )}
@@ -105,102 +129,113 @@ function Navbar() {
   );
 }
 
-function HeroSection() {
+/* ─────────────── Hero ─────────────── */
+
+function HeroSection({ dark }: { dark: boolean }) {
+  const [typedText, setTypedText] = useState('');
+  const fullText = 'npx al-andalus-ai@latest setup';
+
+  useEffect(() => {
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i <= fullText.length) {
+        setTypedText(fullText.slice(0, i));
+        i++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 60);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-green-50 via-white to-green-50">
+    <section className={`relative min-h-screen flex items-center overflow-hidden ${dark ? 'bg-gradient-to-br from-green-950 via-green-900 to-green-950' : 'bg-gradient-to-br from-green-50 via-white to-emerald-50'}`}>
       <GeometricPattern />
-      
-      {/* Decorative elements */}
-      <div className="absolute top-20 right-10 w-64 h-64 bg-green-200/30 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-20 left-10 w-48 h-48 bg-green-300/20 rounded-full blur-2xl"></div>
-      
-      {/* Arch decoration */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] opacity-10">
-        <svg viewBox="0 0 600 300" className="w-full h-full text-green-800">
-          <path d="M100 300 L100 150 Q100 50 200 50 L400 50 Q500 50 500 150 L500 300" fill="none" stroke="currentColor" strokeWidth="2" />
-          <path d="M150 300 L150 170 Q150 80 250 80 L350 80 Q450 80 450 170 L450 300" fill="none" stroke="currentColor" strokeWidth="1" />
-          <path d="M200 300 L200 190 Q200 110 300 110 Q400 110 400 190 L400 300" fill="none" stroke="currentColor" strokeWidth="1" />
+
+      <div className="absolute top-20 right-10 w-72 h-72 bg-green-400/10 rounded-full blur-3xl animate-float"></div>
+      <div className="absolute bottom-20 left-10 w-56 h-56 bg-emerald-300/10 rounded-full blur-2xl animate-float" style={{ animationDelay: '1s' }}></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] opacity-[0.06]">
+        <svg viewBox="0 0 700 400" className={`w-full h-full ${dark ? 'text-green-300' : 'text-green-800'}`}>
+          <path d="M150 400 L150 200 Q150 80 250 80 L450 80 Q550 80 550 200 L550 400" fill="none" stroke="currentColor" strokeWidth="2" />
+          <path d="M200 400 L200 220 Q200 120 300 120 L400 120 Q500 120 500 220 L500 400" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          <path d="M250 400 L250 240 Q250 160 350 160 Q450 160 450 240 L450 400" fill="none" stroke="currentColor" strokeWidth="1" />
+          <circle cx="350" cy="60" r="15" fill="none" stroke="currentColor" strokeWidth="1" />
         </svg>
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16">
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div className="space-y-8">
-            <div className="inline-flex items-center space-x-2 bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium">
+            <div className={`inline-flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-semibold ${dark ? 'bg-green-800/50 text-green-300 border border-green-700' : 'bg-green-100 text-green-800'}`}>
               <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
               Ingeniería Inversa con IA
             </div>
-            
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-green-900 leading-tight">
+
+            <h1 className={`text-5xl sm:text-6xl lg:text-7xl font-black leading-[1.1] ${dark ? 'text-white' : 'text-green-900'}`}>
               Descubre cómo
-              <span className="block bg-gradient-to-r from-green-700 to-green-500 bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-r from-green-500 via-emerald-400 to-green-600 bg-clip-text text-transparent">
                 funciona el software
               </span>
             </h1>
-            
-            <p className="text-xl text-green-700/80 max-w-lg leading-relaxed">
-              Pregunta a tu agente de IA sobre una app, un juego o un sitio web. 
+
+            <p className={`text-xl max-w-lg leading-relaxed ${dark ? 'text-green-300/80' : 'text-green-700/70'}`}>
+              Pregunta a tu agente de IA sobre una app, un juego o un sitio web.
               Al Andalus AI le da las herramientas para inspeccionar el código detrás de la respuesta.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4">
-              <button className="group bg-green-700 hover:bg-green-800 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all shadow-xl hover:shadow-2xl hover:-translate-y-0.5">
+              <button className="group bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-8 py-4 rounded-full font-bold text-lg transition-all shadow-xl shadow-green-700/30 hover:shadow-2xl hover:-translate-y-1">
                 Comenzar ahora
-                <span className="inline-block ml-2 transition-transform group-hover:translate-x-1">→</span>
+                <span className="inline-block ml-2 transition-transform group-hover:translate-x-2">→</span>
               </button>
-              <button className="border-2 border-green-700 text-green-700 hover:bg-green-50 px-8 py-4 rounded-full font-semibold text-lg transition-all">
-                Ver ejemplos
+              <button className={`border-2 px-8 py-4 rounded-full font-bold text-lg transition-all hover:-translate-y-0.5 ${dark ? 'border-green-500 text-green-400 hover:bg-green-900/50' : 'border-green-700 text-green-700 hover:bg-green-50'}`}>
+                Ver ejemplos ↓
               </button>
             </div>
 
             <div className="flex items-center space-x-6 pt-4">
               <div className="flex -space-x-2">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-green-600 border-2 border-white"></div>
+                {['bg-green-400', 'bg-emerald-500', 'bg-green-600', 'bg-teal-500'].map((c, i) => (
+                  <div key={i} className={`w-9 h-9 rounded-full ${c} border-2 ${dark ? 'border-green-900' : 'border-white'} shadow-md`}></div>
                 ))}
               </div>
-              <p className="text-sm text-green-600">
-                <span className="font-bold text-green-800">2,500+</span> desarrolladores confían en nosotros
+              <p className={`text-sm ${dark ? 'text-green-400' : 'text-green-600'}`}>
+                <span className="font-bold">2,500+</span> desarrolladores confían en nosotros
               </p>
             </div>
           </div>
 
+          {/* Terminal card */}
           <div className="relative hidden lg:block">
-            <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-green-100">
-              <div className="absolute -top-4 -right-4 w-20 h-20 bg-green-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <StarPattern className="w-12 h-12 text-white" />
+            <div className={`rounded-3xl p-8 shadow-2xl border backdrop-blur-sm ${dark ? 'bg-green-900/60 border-green-700/50' : 'bg-white/80 border-green-100'}`}>
+              <div className="absolute -top-5 -right-5 w-20 h-20 bg-gradient-to-br from-green-500 to-green-700 rounded-2xl flex items-center justify-center shadow-xl shadow-green-700/40 rotate-12">
+                <Star8 className="w-12 h-12 text-white -rotate-12" />
               </div>
-              
-              <div className="space-y-4">
+
+              <div className="space-y-5">
                 <div className="flex items-center space-x-3 text-sm">
                   <div className="w-3 h-3 rounded-full bg-red-400"></div>
                   <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
                   <div className="w-3 h-3 rounded-full bg-green-400"></div>
-                  <span className="ml-2 text-green-600 font-mono">al-andalus-ai</span>
+                  <span className={`ml-2 font-mono text-xs ${dark ? 'text-green-400' : 'text-green-600'}`}>al-andalus-ai</span>
                 </div>
-                
-                <div className="bg-green-900 rounded-xl p-4 font-mono text-sm">
-                  <p className="text-green-300">{'>'} <span className="text-white">Analizando aplicación...</span></p>
-                  <p className="text-green-400 mt-2">✓ Módulos detectados: 47</p>
-                  <p className="text-green-400 mt-1">✓ Dependencias mapeadas: 128</p>
-                  <p className="text-green-400 mt-1">✓ Rutas encontradas: 23</p>
-                  <p className="text-green-400 mt-1">✓ Funciones críticas: 89</p>
-                  <p className="text-yellow-300 mt-3">⟳ Generando informe...</p>
+
+                <div className="bg-green-950 rounded-xl p-5 font-mono text-sm border border-green-800/50">
+                  <p className="text-green-400">$ <span className="text-white">{typedText}<span className="animate-pulse">▌</span></span></p>
+                  <p className="text-green-400 mt-3">✓ Módulos detectados: <span className="text-emerald-300">47</span></p>
+                  <p className="text-green-400 mt-1">✓ Dependencias mapeadas: <span className="text-emerald-300">128</span></p>
+                  <p className="text-green-400 mt-1">✓ Rutas encontradas: <span className="text-emerald-300">23</span></p>
+                  <p className="text-green-400 mt-1">✓ Funciones críticas: <span className="text-emerald-300">89</span></p>
+                  <p className="text-yellow-300 mt-3 animate-pulse">⟳ Generando informe...</p>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-green-50 rounded-lg p-3 text-center">
-                    <p className="text-2xl font-bold text-green-700">47</p>
-                    <p className="text-xs text-green-600">Módulos</p>
-                  </div>
-                  <div className="bg-green-50 rounded-lg p-3 text-center">
-                    <p className="text-2xl font-bold text-green-700">128</p>
-                    <p className="text-xs text-green-600">Dependencias</p>
-                  </div>
-                  <div className="bg-green-50 rounded-lg p-3 text-center">
-                    <p className="text-2xl font-bold text-green-700">89</p>
-                    <p className="text-xs text-green-600">Funciones</p>
-                  </div>
+                  {[{ n: '47', l: 'Módulos' }, { n: '128', l: 'Dependencias' }, { n: '89', l: 'Funciones' }].map((s, i) => (
+                    <div key={i} className={`rounded-xl p-3 text-center ${dark ? 'bg-green-800/50' : 'bg-green-50'}`}>
+                      <p className="text-2xl font-black text-green-500">{s.n}</p>
+                      <p className={`text-xs ${dark ? 'text-green-400' : 'text-green-600'}`}>{s.l}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -211,69 +246,35 @@ function HeroSection() {
   );
 }
 
-function FeaturesSection() {
+/* ─────────────── Features ─────────────── */
+
+function FeaturesSection({ dark }: { dark: boolean }) {
   const features = [
-    {
-      icon: '🔍',
-      title: 'Inspección Profunda',
-      description: 'Tu agente puede seguir el código, explicar funcionalidades y ayudarte a reconstruirlas.'
-    },
-    {
-      icon: '⚡',
-      title: 'Análisis en Tiempo Real',
-      description: 'Observa el comportamiento del software mientras se ejecuta y captura datos dinámicos.'
-    },
-    {
-      icon: '🏗️',
-      title: 'Reconstrucción Asistida',
-      description: 'Reconstruye funcionalidades completas a partir del análisis del código fuente.'
-    },
-    {
-      icon: '🔐',
-      title: 'Binarios Nativos',
-      description: 'Inspecciona funciones, strings, referencias y relaciones de llamadas en ejecutables.'
-    },
-    {
-      icon: '🌐',
-      title: 'JavaScript & Electron',
-      description: 'Mapea módulos, rutas, IPC y dependencias nativas desde un archivo ASAR.'
-    },
-    {
-      icon: '🎯',
-      title: 'Navegador & Runtime',
-      description: 'Captura actividad del navegador o proceso y compara resultados entre ejecuciones.'
-    }
+    { icon: '🔍', title: 'Inspección Profunda', desc: 'Tu agente puede seguir el código, explicar funcionalidades y ayudarte a reconstruirlas.' },
+    { icon: '⚡', title: 'Análisis en Tiempo Real', desc: 'Observa el comportamiento del software mientras se ejecuta y captura datos dinámicos.' },
+    { icon: '🏗️', title: 'Reconstrucción Asistida', desc: 'Reconstruye funcionalidades completas a partir del análisis del código fuente.' },
+    { icon: '🔐', title: 'Binarios Nativos', desc: 'Inspecciona funciones, strings, referencias y relaciones de llamadas en ejecutables.' },
+    { icon: '🌐', title: 'JavaScript & Electron', desc: 'Mapea módulos, rutas, IPC y dependencias nativas desde un archivo ASAR.' },
+    { icon: '🎯', title: 'Navegador & Runtime', desc: 'Captura actividad del navegador o proceso y compara resultados entre ejecuciones.' },
   ];
 
   return (
-    <section id="features" className="py-24 bg-white relative overflow-hidden">
-      <div className="absolute inset-0 opacity-[0.02]">
-        <GeometricPattern />
-      </div>
-      
+    <section id="características" className={`py-24 relative overflow-hidden ${dark ? 'bg-green-950' : 'bg-white'}`}>
+      <div className="absolute inset-0 opacity-[0.02]"><GeometricPattern /></div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="text-center mb-16">
-          <h2 className="text-4xl sm:text-5xl font-bold text-green-900 mb-4">
-            Herramientas Poderosas
-          </h2>
-          <p className="text-xl text-green-700/70 max-w-2xl mx-auto">
+          <h2 className={`text-4xl sm:text-5xl font-black mb-4 ${dark ? 'text-white' : 'text-green-900'}`}>Herramientas Poderosas</h2>
+          <p className={`text-xl max-w-2xl mx-auto ${dark ? 'text-green-400/70' : 'text-green-700/60'}`}>
             Todo lo que necesitas para entender, analizar y reconstruir cualquier software
           </p>
         </div>
-
+        <ArabesqueDivider />
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <div 
-              key={index}
-              className="group bg-gradient-to-br from-white to-green-50 rounded-2xl p-8 border border-green-100 hover:border-green-300 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-            >
-              <div className="text-4xl mb-4">{feature.icon}</div>
-              <h3 className="text-xl font-bold text-green-900 mb-3 group-hover:text-green-700 transition-colors">
-                {feature.title}
-              </h3>
-              <p className="text-green-700/70 leading-relaxed">
-                {feature.description}
-              </p>
+          {features.map((f, i) => (
+            <div key={i} className={`group rounded-2xl p-8 border transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 ${dark ? 'bg-green-900/40 border-green-800 hover:border-green-600 hover:shadow-green-900/30' : 'bg-gradient-to-br from-white to-green-50 border-green-100 hover:border-green-400'}`}>
+              <div className="text-4xl mb-5 group-hover:scale-110 transition-transform duration-300">{f.icon}</div>
+              <h3 className={`text-xl font-bold mb-3 transition-colors ${dark ? 'text-white group-hover:text-green-400' : 'text-green-900 group-hover:text-green-600'}`}>{f.title}</h3>
+              <p className={`leading-relaxed ${dark ? 'text-green-400/70' : 'text-green-700/60'}`}>{f.desc}</p>
             </div>
           ))}
         </div>
@@ -282,136 +283,482 @@ function FeaturesSection() {
   );
 }
 
-function HowItWorksSection() {
+/* ─────────────── How It Works ─────────────── */
+
+function HowItWorksSection({ dark }: { dark: boolean }) {
   const steps = [
-    {
-      number: '01',
-      title: 'Pregunta sobre una funcionalidad',
-      description: 'Dale a tu agente un programa o página y una pregunta.',
-      icon: '💬'
-    },
-    {
-      number: '02',
-      title: 'Inspecciona el programa',
-      description: 'Al Andalus AI devuelve código, referencias y observaciones en tiempo de ejecución.',
-      icon: '🔬'
-    },
-    {
-      number: '03',
-      title: 'Explícalo y prueba un cambio',
-      description: 'Tu agente usa los hallazgos para explicar o reconstruir la funcionalidad.',
-      icon: '🚀'
-    }
+    { n: '01', t: 'Pregunta sobre una funcionalidad', d: 'Dale a tu agente un programa o página y una pregunta.', icon: '💬' },
+    { n: '02', t: 'Inspecciona el programa', d: 'Al Andalus AI devuelve código, referencias y observaciones en tiempo real.', icon: '🔬' },
+    { n: '03', t: 'Explícalo y prueba un cambio', d: 'Tu agente usa los hallazgos para explicar o reconstruir la funcionalidad.', icon: '🚀' },
   ];
 
   return (
-    <section id="how-it-works" className="py-24 bg-gradient-to-b from-green-900 to-green-800 relative overflow-hidden">
-      <div className="absolute inset-0 opacity-10">
-        <GeometricPattern />
-      </div>
-      
-      {/* Decorative arches */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 opacity-10">
-        <svg viewBox="0 0 1200 120" className="w-full h-full text-white" preserveAspectRatio="none">
+    <section id="cómo-funciona" className="py-24 bg-gradient-to-b from-green-800 to-green-900 relative overflow-hidden">
+      <div className="absolute inset-0 opacity-10"><GeometricPattern /></div>
+      <div className="absolute bottom-0 left-0 right-0 opacity-10">
+        <svg viewBox="0 0 1200 120" className="w-full h-32 text-green-950" preserveAspectRatio="none">
           <path d="M0 120 L0 80 Q100 20 200 80 Q300 20 400 80 Q500 20 600 80 Q700 20 800 80 Q900 20 1000 80 Q1100 20 1200 80 L1200 120 Z" fill="currentColor" />
         </svg>
       </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="text-center mb-16">
-          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-            ¿Cómo Funciona?
-          </h2>
-          <p className="text-xl text-green-200/80 max-w-2xl mx-auto">
-            Ingeniería inversa significa aprender cómo funciona el software inspeccionando el programa mismo
-          </p>
+          <h2 className="text-4xl sm:text-5xl font-black text-white mb-4">¿Cómo Funciona?</h2>
+          <p className="text-xl text-green-200/70 max-w-2xl mx-auto">Ingeniería inversa significa aprender cómo funciona el software inspeccionando el programa mismo</p>
         </div>
-
         <div className="grid md:grid-cols-3 gap-8">
-          {steps.map((step, index) => (
-            <div key={index} className="relative">
-              {index < steps.length - 1 && (
-                <div className="hidden md:block absolute top-16 left-full w-full h-0.5 bg-gradient-to-r from-green-400 to-transparent z-0"></div>
-              )}
-              <div className="relative bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:bg-white/15 transition-all">
+          {steps.map((s, i) => (
+            <div key={i} className="relative">
+              {i < steps.length - 1 && <div className="hidden md:block absolute top-20 left-full w-full h-0.5 bg-gradient-to-r from-green-400/50 to-transparent z-0"></div>}
+              <div className="relative bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:bg-white/15 transition-all duration-300 hover:-translate-y-1">
                 <div className="flex items-center space-x-4 mb-6">
-                  <span className="text-5xl font-black text-green-400/30">{step.number}</span>
-                  <span className="text-3xl">{step.icon}</span>
+                  <span className="text-5xl font-black text-green-400/30">{s.n}</span>
+                  <span className="text-3xl">{s.icon}</span>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
-                <p className="text-green-200/70 leading-relaxed">{step.description}</p>
+                <h3 className="text-xl font-bold text-white mb-3">{s.t}</h3>
+                <p className="text-green-200/60 leading-relaxed">{s.d}</p>
               </div>
             </div>
           ))}
         </div>
+      </div>
+    </section>
+  );
+}
 
-        {/* Code example */}
-        <div className="mt-16 bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-white/10 max-w-3xl mx-auto">
-          <div className="flex items-center space-x-2 mb-4">
-            <div className="w-3 h-3 rounded-full bg-red-400"></div>
-            <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-            <div className="w-3 h-3 rounded-full bg-green-400"></div>
-            <span className="ml-3 text-green-300 text-sm font-mono">terminal</span>
+/* ─────────────── Dino Game ─────────────── */
+
+function DinoGame({ dark }: { dark: boolean }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(6);
+  const [manualSpeed, setManualSpeed] = useState(false);
+  const [score, setScore] = useState(0);
+  const [gameOver, setGameOver] = useState(false);
+  const gameRef = useRef<{ dinoY: number; velocity: number; cactusX: number; speed: number; score: number; frame: number }>({
+    dinoY: 0, velocity: 0, cactusX: 400, speed: 6, score: 0, frame: 0
+  });
+  const animRef = useRef<number>(0);
+
+  const GROUND_Y = 130;
+  const DINO_X = 50;
+  const DINO_W = 30;
+  const DINO_H = 40;
+  const CACTUS_W = 20;
+  const CACTUS_H = 40;
+  const GRAVITY = 0.6;
+  const JUMP_FORCE = -12;
+  const CANVAS_W = 500;
+  const CANVAS_H = 170;
+
+  const jump = useCallback(() => {
+    const g = gameRef.current;
+    if (g.dinoY >= GROUND_Y - DINO_H) {
+      g.velocity = JUMP_FORCE;
+    }
+  }, []);
+
+  const startGame = useCallback(() => {
+    const g = gameRef.current;
+    g.dinoY = GROUND_Y - DINO_H;
+    g.velocity = 0;
+    g.cactusX = CANVAS_W;
+    g.speed = manualSpeed ? speed : 6;
+    g.score = 0;
+    g.frame = 0;
+    setPlaying(true);
+    setGameOver(false);
+    setScore(0);
+  }, [speed, manualSpeed]);
+
+  useEffect(() => {
+    if (!playing) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d')!;
+    const g = gameRef.current;
+
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.code === 'Space' || e.code === 'ArrowUp') {
+        e.preventDefault();
+        jump();
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+
+    const loop = () => {
+      g.frame++;
+      // Physics
+      g.velocity += GRAVITY;
+      g.dinoY += g.velocity;
+      if (g.dinoY >= GROUND_Y - DINO_H) {
+        g.dinoY = GROUND_Y - DINO_H;
+        g.velocity = 0;
+      }
+      // Cactus
+      g.cactusX -= g.speed * 0.5;
+      if (g.cactusX < -CACTUS_W) {
+        g.cactusX = CANVAS_W + Math.random() * 200;
+        g.score++;
+        setScore(g.score);
+      }
+      // Speed up (original rule: accelerate until max 13)
+      if (!manualSpeed && g.speed < 13) {
+        g.speed += 0.001;
+      }
+      // Collision
+      if (
+        DINO_X + DINO_W > g.cactusX &&
+        DINO_X < g.cactusX + CACTUS_W &&
+        g.dinoY + DINO_H > GROUND_Y - CACTUS_H
+      ) {
+        setPlaying(false);
+        setGameOver(true);
+        return;
+      }
+      // Draw
+      ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+      // Ground
+      ctx.strokeStyle = dark ? '#4ade80' : '#166534';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, GROUND_Y);
+      ctx.lineTo(CANVAS_W, GROUND_Y);
+      ctx.stroke();
+      // Ground texture
+      for (let i = 0; i < CANVAS_W; i += 20) {
+        const offset = (i + g.frame * g.speed * 0.3) % CANVAS_W;
+        ctx.fillStyle = dark ? '#4ade8040' : '#16653430';
+        ctx.fillRect(CANVAS_W - offset, GROUND_Y + 5, 8, 2);
+      }
+      // Dino
+      ctx.fillStyle = dark ? '#4ade80' : '#15803d';
+      ctx.fillRect(DINO_X, g.dinoY, DINO_W, DINO_H);
+      // Dino eye
+      ctx.fillStyle = dark ? '#000' : '#fff';
+      ctx.fillRect(DINO_X + 20, g.dinoY + 8, 5, 5);
+      // Dino legs animation
+      const legOffset = Math.sin(g.frame * 0.3) * 4;
+      ctx.fillStyle = dark ? '#4ade80' : '#15803d';
+      ctx.fillRect(DINO_X + 5, g.dinoY + DINO_H, 6, 6 + (g.dinoY < GROUND_Y - DINO_H ? 0 : legOffset));
+      ctx.fillRect(DINO_X + 18, g.dinoY + DINO_H, 6, 6 + (g.dinoY < GROUND_Y - DINO_H ? 0 : -legOffset));
+      // Cactus
+      ctx.fillStyle = dark ? '#22c55e' : '#166534';
+      ctx.fillRect(g.cactusX, GROUND_Y - CACTUS_H, CACTUS_W, CACTUS_H);
+      ctx.fillRect(g.cactusX - 6, GROUND_Y - CACTUS_H + 10, 8, 15);
+      ctx.fillRect(g.cactusX + CACTUS_W - 2, GROUND_Y - CACTUS_H + 5, 8, 12);
+      // Score
+      ctx.fillStyle = dark ? '#4ade80' : '#166534';
+      ctx.font = 'bold 14px monospace';
+      ctx.fillText(`Score: ${g.score}`, CANVAS_W - 100, 25);
+      // Speed indicator
+      ctx.fillText(`Speed: ${g.speed.toFixed(1)}`, 10, 25);
+
+      animRef.current = requestAnimationFrame(loop);
+    };
+    animRef.current = requestAnimationFrame(loop);
+
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      window.removeEventListener('keydown', handleKey);
+    };
+  }, [playing, dark, jump]);
+
+  return (
+    <section id="dino-lab" className={`py-24 relative overflow-hidden ${dark ? 'bg-green-950' : 'bg-gradient-to-b from-green-50 to-white'}`}>
+      <div className="absolute inset-0 opacity-[0.02]"><GeometricPattern /></div>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <div className="text-center mb-12">
+          <span className={`inline-block px-4 py-1 rounded-full text-sm font-semibold mb-4 ${dark ? 'bg-green-800/50 text-green-300' : 'bg-green-100 text-green-700'}`}>
+            Ejemplo Interactivo 01
+          </span>
+          <h2 className={`text-4xl sm:text-5xl font-black mb-4 ${dark ? 'text-white' : 'text-green-900'}`}>
+            ¿Por qué el dinosaurio se acelera?
+          </h2>
+          <p className={`text-xl max-w-2xl mx-auto ${dark ? 'text-green-400/70' : 'text-green-700/60'}`}>
+            El juego se acelera mientras corres. Reconstruimos esa regla y añadimos un control de velocidad.
+          </p>
+        </div>
+
+        <div className={`rounded-3xl p-6 sm:p-8 shadow-2xl border ${dark ? 'bg-green-900/50 border-green-700/50' : 'bg-white border-green-100'}`}>
+          {/* Game canvas */}
+          <div className={`rounded-xl overflow-hidden mb-6 border ${dark ? 'border-green-700 bg-green-950' : 'border-green-200 bg-green-50'}`}>
+            <canvas
+              ref={canvasRef}
+              width={CANVAS_W}
+              height={CANVAS_H}
+              className="w-full cursor-pointer"
+              onClick={() => { if (playing) jump(); }}
+            />
           </div>
-          <pre className="text-green-300 font-mono text-sm overflow-x-auto">
-            <code>{`$ npx al-andalus-ai@latest setup
 
-✓ Configuración completada
-✓ Agente conectado
-✓ Módulos cargados: 24
+          {/* Controls */}
+          <div className="flex flex-wrap items-center gap-4 mb-6">
+            {!playing ? (
+              <button onClick={startGame} className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-6 py-3 rounded-full font-bold shadow-lg shadow-green-700/30 transition-all hover:-translate-y-0.5">
+                {gameOver ? '🔄 Reiniciar' : '▶ Jugar'}
+              </button>
+            ) : (
+              <button onClick={jump} className="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-full font-bold shadow-lg transition-all hover:-translate-y-0.5">
+                ⬆ Saltar
+              </button>
+            )}
+            <div className={`flex items-center gap-3 px-4 py-2 rounded-full ${dark ? 'bg-green-800/50' : 'bg-green-50'}`}>
+              <span className={`text-sm font-medium ${dark ? 'text-green-300' : 'text-green-700'}`}>Puntuación:</span>
+              <span className="text-lg font-black text-green-500">{score}</span>
+            </div>
+            {gameOver && (
+              <span className="text-red-500 font-bold animate-pulse">¡Game Over!</span>
+            )}
+          </div>
 
-> Listo para analizar. Pregunta a tu agente sobre cualquier software.`}</code>
-          </pre>
+          {/* Speed control */}
+          <div className={`rounded-xl p-5 ${dark ? 'bg-green-800/30 border border-green-700/50' : 'bg-green-50 border border-green-100'}`}>
+            <div className="flex items-center justify-between mb-3">
+              <label className={`font-semibold ${dark ? 'text-green-300' : 'text-green-800'}`}>
+                Control de velocidad manual
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked={manualSpeed} onChange={() => setManualSpeed(!manualSpeed)} className="w-4 h-4 accent-green-600" />
+                <span className={`text-sm ${dark ? 'text-green-400' : 'text-green-600'}`}>Activar</span>
+              </label>
+            </div>
+            <input
+              type="range"
+              min="3"
+              max="20"
+              step="0.5"
+              value={speed}
+              onChange={e => setSpeed(parseFloat(e.target.value))}
+              disabled={!manualSpeed}
+              className="w-full accent-green-600 h-2 rounded-full appearance-none cursor-pointer disabled:opacity-40"
+            />
+            <div className="flex justify-between mt-2">
+              <span className={`text-xs ${dark ? 'text-green-500' : 'text-green-600'}`}>Lento (3)</span>
+              <span className={`text-sm font-bold ${dark ? 'text-green-400' : 'text-green-700'}`}>Velocidad: {speed.toFixed(1)}</span>
+              <span className={`text-xs ${dark ? 'text-green-500' : 'text-green-600'}`}>Rápido (20)</span>
+            </div>
+          </div>
+
+          {/* Code snippet */}
+          <div className="mt-6">
+            <p className={`text-sm font-semibold mb-2 ${dark ? 'text-green-400' : 'text-green-700'}`}>
+              📄 Código original recuperado por Al Andalus AI:
+            </p>
+            <div className="bg-green-950 rounded-xl p-4 font-mono text-sm border border-green-800/50 overflow-x-auto">
+              <pre className="text-green-300">
+                <code>{`if (this.currentSpeed < this.config.MAX_SPEED) {
+  this.currentSpeed += this.config.ACCELERATION;
+}`}</code>
+              </pre>
+            </div>
+            <p className={`text-xs mt-2 ${dark ? 'text-green-500/60' : 'text-green-600/60'}`}>
+              Empieza en 6. Añade 0.001 cada actualización sin colisión, mientras la velocidad sea menor que 13.
+            </p>
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-function ShowcasesSection() {
-  const cases = [
-    {
-      category: 'Android · Análisis APK',
-      title: 'Cómo un autenticador genera un código de acceso',
-      description: 'Rastrea el código de acceso de seis dígitos de Aegis a través de su APK publicada.',
-      color: 'from-green-600 to-green-800'
-    },
-    {
-      category: 'Electron · Rastreo de funciones',
-      title: 'Cómo Notion copia texto y HTML',
-      description: 'Sigue el JavaScript empaquetado de Notion hasta el portapapeles del sistema.',
-      color: 'from-green-700 to-green-900'
-    },
-    {
-      category: 'Nativo · Reconstrucción',
-      title: 'Cálculo de paneo de sonido en DX-Ball',
-      description: 'Recupera cómo la posición de una bola se convierte en sonido izquierdo/derecho.',
-      color: 'from-green-800 to-green-950'
+/* ─────────────── Calculator ─────────────── */
+
+function CalculatorDemo({ dark }: { dark: boolean }) {
+  const [display, setDisplay] = useState('200');
+  const [prev, setPrev] = useState<number | null>(200);
+  const [current, setCurrent] = useState('10');
+  const [operation, setOperation] = useState<'+' | '×'>('+');
+  const [result, setResult] = useState<string | null>(null);
+  const [showExplanation, setShowExplanation] = useState(false);
+
+  const handlePercent = () => {
+    const curr = parseFloat(current);
+    const p = prev;
+    let percentResult: number;
+    if (operation === '×') {
+      percentResult = curr / 100;
+    } else {
+      percentResult = (curr * (p || 0)) / 100;
     }
-  ];
+    setResult(percentResult.toString());
+    setShowExplanation(true);
+  };
+
+  const handleEquals = () => {
+    const p = prev || 0;
+    const c = parseFloat(result || current);
+    let res: number;
+    if (operation === '+') {
+      res = p + c;
+    } else {
+      res = p * c;
+    }
+    setDisplay(res.toString());
+  };
+
+  const reset = () => {
+    setDisplay('200');
+    setPrev(200);
+    setCurrent('10');
+    setResult(null);
+    setShowExplanation(false);
+  };
 
   return (
-    <section id="showcases" className="py-24 bg-green-50 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl sm:text-5xl font-bold text-green-900 mb-4">
-            Casos de Estudio
+    <section id="calculadora" className={`py-24 relative overflow-hidden ${dark ? 'bg-green-900/30' : 'bg-white'}`}>
+      <div className="absolute inset-0 opacity-[0.02]"><GeometricPattern /></div>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <div className="text-center mb-12">
+          <span className={`inline-block px-4 py-1 rounded-full text-sm font-semibold mb-4 ${dark ? 'bg-green-800/50 text-green-300' : 'bg-green-100 text-green-700'}`}>
+            Ejemplo Interactivo 02
+          </span>
+          <h2 className={`text-4xl sm:text-5xl font-black mb-4 ${dark ? 'text-white' : 'text-green-900'}`}>
+            Reconstruye el botón % de la Calculadora
           </h2>
-          <p className="text-xl text-green-700/70 max-w-2xl mx-auto">
-            Explora funcionalidades en apps y juegos publicados, con código y resultados verificados
+          <p className={`text-xl max-w-2xl mx-auto ${dark ? 'text-green-400/70' : 'text-green-700/60'}`}>
+            El botón % hace cosas distintas después de + y ×. Descubre ambas reglas.
           </p>
         </div>
 
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Operation selector */}
+          <div className={`rounded-3xl p-8 shadow-2xl border ${dark ? 'bg-green-900/50 border-green-700/50' : 'bg-white border-green-100'}`}>
+            <h3 className={`text-lg font-bold mb-6 ${dark ? 'text-white' : 'text-green-900'}`}>Elige operación:</h3>
+            <div className="flex gap-4 mb-8">
+              <button
+                onClick={() => { setOperation('+'); reset(); }}
+                className={`flex-1 py-4 rounded-xl font-bold text-2xl transition-all ${operation === '+'
+                  ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg shadow-green-700/30'
+                  : dark ? 'bg-green-800/50 text-green-400 hover:bg-green-800' : 'bg-green-50 text-green-700 hover:bg-green-100'
+                }`}
+              >
+                +
+              </button>
+              <button
+                onClick={() => { setOperation('×'); reset(); }}
+                className={`flex-1 py-4 rounded-xl font-bold text-2xl transition-all ${operation === '×'
+                  ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg shadow-green-700/30'
+                  : dark ? 'bg-green-800/50 text-green-400 hover:bg-green-800' : 'bg-green-50 text-green-700 hover:bg-green-100'
+                }`}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Calculator display */}
+            <div className={`rounded-2xl p-6 mb-6 ${dark ? 'bg-green-950 border border-green-800' : 'bg-green-50 border border-green-200'}`}>
+              <div className="text-right">
+                <p className={`text-sm ${dark ? 'text-green-500' : 'text-green-600'}`}>
+                  {prev} {operation} {result !== null ? result : current}
+                </p>
+                <p className={`text-4xl font-black ${dark ? 'text-white' : 'text-green-900'}`}>{display}</p>
+              </div>
+            </div>
+
+            {/* Buttons */}
+            <div className="grid grid-cols-3 gap-3">
+              <button onClick={handlePercent} className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white py-4 rounded-xl font-bold text-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5">
+                %
+              </button>
+              <button onClick={handleEquals} className="bg-gradient-to-r from-green-600 to-green-700 text-white py-4 rounded-xl font-bold text-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5">
+                =
+              </button>
+              <button onClick={reset} className={`py-4 rounded-xl font-bold text-xl transition-all hover:-translate-y-0.5 ${dark ? 'bg-green-800 text-green-300 hover:bg-green-700' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}>
+                ↺
+              </button>
+            </div>
+
+            <p className={`text-sm mt-4 text-center ${dark ? 'text-green-500/60' : 'text-green-600/60'}`}>
+              Pulsa <strong>%</strong> para ver qué le pasa al 10
+            </p>
+          </div>
+
+          {/* Explanation */}
+          <div className="space-y-6">
+            <div className={`rounded-3xl p-8 shadow-2xl border ${dark ? 'bg-green-900/50 border-green-700/50' : 'bg-white border-green-100'}`}>
+              <h3 className={`text-lg font-bold mb-4 ${dark ? 'text-white' : 'text-green-900'}`}>
+                {showExplanation ? '📊 Resultado del análisis' : '💡 ¿Qué hace el botón %?'}
+              </h3>
+              {!showExplanation ? (
+                <div className="space-y-4">
+                  <div className={`rounded-xl p-4 ${dark ? 'bg-green-800/30' : 'bg-green-50'}`}>
+                    <p className={`font-semibold ${dark ? 'text-green-300' : 'text-green-800'}`}>Con +</p>
+                    <p className={`text-sm ${dark ? 'text-green-400/70' : 'text-green-600'}`}>
+                      Toma un porcentaje del primer número.<br />
+                      <code className="font-mono bg-green-900/30 px-2 py-0.5 rounded">10% de 200 = 20 → 200 + 20 = 220</code>
+                    </p>
+                  </div>
+                  <div className={`rounded-xl p-4 ${dark ? 'bg-green-800/30' : 'bg-green-50'}`}>
+                    <p className={`font-semibold ${dark ? 'text-green-300' : 'text-green-800'}`}>Con ×</p>
+                    <p className={`text-sm ${dark ? 'text-green-400/70' : 'text-green-600'}`}>
+                      Convierte el porcentaje a decimal.<br />
+                      <code className="font-mono bg-green-900/30 px-2 py-0.5 rounded">200 × 0.1 = 20</code>
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className={`rounded-xl p-5 ${dark ? 'bg-green-800/40 border border-green-700' : 'bg-green-50 border border-green-200'}`}>
+                  <p className={`font-bold text-lg mb-2 ${dark ? 'text-green-300' : 'text-green-800'}`}>
+                    {operation === '+' ? `10% de 200 = ${result}` : `10% → ${result}`}
+                  </p>
+                  <p className={`text-sm ${dark ? 'text-green-400/70' : 'text-green-600'}`}>
+                    {operation === '+'
+                      ? 'El % toma un porcentaje del primer número (200 × 10 / 100 = 20)'
+                      : 'El % convierte el porcentaje a decimal (10 / 100 = 0.1)'}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Code */}
+            <div className={`rounded-3xl p-8 shadow-2xl border ${dark ? 'bg-green-900/50 border-green-700/50' : 'bg-white border-green-100'}`}>
+              <p className={`text-sm font-semibold mb-3 ${dark ? 'text-green-400' : 'text-green-700'}`}>
+                📄 Código recuperado por Al Andalus AI:
+              </p>
+              <div className="bg-green-950 rounded-xl p-4 font-mono text-xs border border-green-800/50 overflow-x-auto">
+                <pre className="text-green-300">
+                  <code>{`if (operation == multiply || operation == divide) {
+  percent = current / 100;
+} else {
+  percent = current * previous / 100;
+}`}</code>
+                </pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─────────────── Showcases ─────────────── */
+
+function ShowcasesSection({ dark }: { dark: boolean }) {
+  const cases = [
+    { cat: 'Android · Análisis APK', title: 'Cómo un autenticador genera un código de acceso', desc: 'Rastrea el código de seis dígitos de Aegis a través de su APK publicada.', gradient: 'from-green-600 to-emerald-700' },
+    { cat: 'Electron · Rastreo', title: 'Cómo Notion copia texto y HTML', desc: 'Sigue el JavaScript empaquetado de Notion hasta el portapapeles del sistema.', gradient: 'from-green-700 to-green-900' },
+    { cat: 'Nativo · Reconstrucción', title: 'Cálculo de paneo de sonido en DX-Ball', desc: 'Recupera cómo la posición de una bola se convierte en sonido izquierdo/derecho.', gradient: 'from-emerald-700 to-green-950' },
+  ];
+
+  return (
+    <section id="casos" className={`py-24 ${dark ? 'bg-green-950' : 'bg-green-50'}`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className={`text-4xl sm:text-5xl font-black mb-4 ${dark ? 'text-white' : 'text-green-900'}`}>Casos de Estudio</h2>
+          <p className={`text-xl max-w-2xl mx-auto ${dark ? 'text-green-400/70' : 'text-green-700/60'}`}>
+            Explora funcionalidades en apps y juegos publicados, con código y resultados verificados
+          </p>
+        </div>
+        <ArabesqueDivider />
         <div className="grid md:grid-cols-3 gap-8">
-          {cases.map((item, index) => (
-            <div key={index} className="group cursor-pointer">
-              <div className={`bg-gradient-to-br ${item.color} rounded-2xl p-8 h-full flex flex-col justify-between transition-all duration-300 group-hover:shadow-2xl group-hover:-translate-y-2`}>
+          {cases.map((c, i) => (
+            <div key={i} className="group cursor-pointer">
+              <div className={`bg-gradient-to-br ${c.gradient} rounded-2xl p-8 h-full flex flex-col justify-between transition-all duration-500 group-hover:shadow-2xl group-hover:-translate-y-3`}>
                 <div>
-                  <span className="inline-block bg-white/20 text-white text-xs font-medium px-3 py-1 rounded-full mb-4">
-                    {item.category}
-                  </span>
-                  <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
-                  <p className="text-green-100/80 text-sm leading-relaxed">{item.description}</p>
+                  <span className="inline-block bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full mb-4">{c.cat}</span>
+                  <h3 className="text-xl font-bold text-white mb-3">{c.title}</h3>
+                  <p className="text-green-100/70 text-sm leading-relaxed">{c.desc}</p>
                 </div>
                 <div className="mt-6 flex items-center text-white/80 group-hover:text-white transition-colors">
                   <span className="text-sm font-medium">Leer caso de estudio</span>
@@ -426,49 +773,34 @@ function ShowcasesSection() {
   );
 }
 
-function GuidesSection() {
+/* ─────────────── Guides ─────────────── */
+
+function GuidesSection({ dark }: { dark: boolean }) {
   const guides = [
-    {
-      title: 'Binarios Nativos',
-      description: 'Inspecciona funciones, strings, referencias y relaciones de llamadas en ejecutables y bibliotecas.',
-      icon: '⚙️'
-    },
-    {
-      title: 'JavaScript & Electron',
-      description: 'Mapea módulos, rutas, IPC y dependencias nativas desde una carpeta de aplicación o archivo ASAR.',
-      icon: '📦'
-    },
-    {
-      title: 'Navegador & Actividad en Runtime',
-      description: 'Captura actividad seleccionada del navegador o proceso y compara resultados entre ejecuciones.',
-      icon: '🌍'
-    }
+    { title: 'Binarios Nativos', desc: 'Inspecciona funciones, strings, referencias y relaciones de llamadas en ejecutables y bibliotecas.', icon: '⚙️' },
+    { title: 'JavaScript & Electron', desc: 'Mapea módulos, rutas, IPC y dependencias nativas desde una carpeta de aplicación o archivo ASAR.', icon: '📦' },
+    { title: 'Navegador & Runtime', desc: 'Captura actividad seleccionada del navegador o proceso y compara resultados entre ejecuciones.', icon: '🌍' },
   ];
 
   return (
-    <section id="guides" className="py-24 bg-white relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-96 h-96 bg-green-100 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl opacity-50"></div>
-      
+    <section id="guías" className={`py-24 relative overflow-hidden ${dark ? 'bg-green-900/20' : 'bg-white'}`}>
+      <div className="absolute top-0 right-0 w-96 h-96 bg-green-200 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl opacity-20"></div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="text-center mb-16">
-          <h2 className="text-4xl sm:text-5xl font-bold text-green-900 mb-4">
-            Elige tu Objetivo
-          </h2>
-          <p className="text-xl text-green-700/70 max-w-2xl mx-auto">
-            Estas guías cubren la configuración y una primera investigación para cada tipo de software
+          <h2 className={`text-4xl sm:text-5xl font-black mb-4 ${dark ? 'text-white' : 'text-green-900'}`}>Elige tu Objetivo</h2>
+          <p className={`text-xl max-w-2xl mx-auto ${dark ? 'text-green-400/70' : 'text-green-700/60'}`}>
+            Guías de configuración y primera investigación para cada tipo de software
           </p>
         </div>
-
         <div className="grid md:grid-cols-3 gap-8">
-          {guides.map((guide, index) => (
-            <div key={index} className="relative bg-white rounded-2xl p-8 border-2 border-green-100 hover:border-green-400 transition-all duration-300 group hover:shadow-xl">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 to-green-700 rounded-t-2xl transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
-              <span className="text-4xl mb-4 block">{guide.icon}</span>
-              <h3 className="text-xl font-bold text-green-900 mb-3">{guide.title}</h3>
-              <p className="text-green-700/70 leading-relaxed mb-6">{guide.description}</p>
-              <button className="text-green-700 font-semibold flex items-center group-hover:text-green-500 transition-colors">
-                Leer guía
-                <span className="ml-2 transition-transform group-hover:translate-x-1">→</span>
+          {guides.map((g, i) => (
+            <div key={i} className={`relative rounded-2xl p-8 border-2 transition-all duration-500 group hover:shadow-2xl hover:-translate-y-2 ${dark ? 'bg-green-900/30 border-green-800 hover:border-green-500' : 'bg-white border-green-100 hover:border-green-400'}`}>
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 to-emerald-400 rounded-t-2xl transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
+              <span className="text-4xl mb-4 block">{g.icon}</span>
+              <h3 className={`text-xl font-bold mb-3 ${dark ? 'text-white' : 'text-green-900'}`}>{g.title}</h3>
+              <p className={`leading-relaxed mb-6 ${dark ? 'text-green-400/70' : 'text-green-700/60'}`}>{g.desc}</p>
+              <button className={`font-semibold flex items-center transition-colors ${dark ? 'text-green-400 hover:text-green-300' : 'text-green-700 hover:text-green-500'}`}>
+                Leer guía <span className="ml-2 transition-transform group-hover:translate-x-1">→</span>
               </button>
             </div>
           ))}
@@ -478,46 +810,51 @@ function GuidesSection() {
   );
 }
 
-function SetupSection() {
-  return (
-    <section className="py-24 bg-gradient-to-br from-green-50 to-white relative overflow-hidden">
-      <div className="absolute inset-0 opacity-[0.03]">
-        <GeometricPattern />
-      </div>
-      
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <div className="bg-white rounded-3xl shadow-2xl p-8 sm:p-12 border border-green-100">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl sm:text-4xl font-bold text-green-900 mb-4">
-              Configura Al Andalus AI
-            </h2>
-            <p className="text-lg text-green-700/70">
-              Copia esto en tu agente de codificación
-            </p>
-          </div>
+/* ─────────────── Setup CTA ─────────────── */
 
-          <div className="bg-green-900 rounded-xl p-6 font-mono text-sm relative">
-            <button className="absolute top-4 right-4 text-green-400 hover:text-white transition-colors text-xs bg-green-800 px-3 py-1 rounded">
-              Copiar
-            </button>
-            <pre className="text-green-300 overflow-x-auto">
-              <code>{`# Instala Al Andalus AI y conéctalo a este agente
+function SetupSection({ dark }: { dark: boolean }) {
+  const [copied, setCopied] = useState(false);
+  const code = `# Instala Al Andalus AI y conéctalo a tu agente
 npx al-andalus-ai@latest setup
 
 # Muestra el plan de configuración para aprobación
-# luego verifica la instalación`}</code>
-            </pre>
-          </div>
+# luego verifica la instalación`;
 
-          <div className="mt-8 text-center">
-            <p className="text-green-600 text-sm mb-4">
-              ¿Otras opciones de instalación?
+  const copyCode = () => {
+    navigator.clipboard.writeText(code).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <section className={`py-24 relative overflow-hidden ${dark ? 'bg-green-950' : 'bg-gradient-to-br from-green-50 to-white'}`}>
+      <div className="absolute inset-0 opacity-[0.02]"><GeometricPattern /></div>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <div className={`rounded-3xl shadow-2xl p-8 sm:p-12 border ${dark ? 'bg-green-900/50 border-green-700/50' : 'bg-white border-green-100'}`}>
+          <div className="text-center mb-8">
+            <h2 className={`text-3xl sm:text-4xl font-black mb-4 ${dark ? 'text-white' : 'text-green-900'}`}>
+              Configura Al Andalus AI
+            </h2>
+            <p className={`text-lg ${dark ? 'text-green-400/70' : 'text-green-700/60'}`}>
+              Copia esto en tu agente de codificación
             </p>
+          </div>
+          <div className="bg-green-950 rounded-xl p-6 font-mono text-sm relative border border-green-800/50">
+            <button
+              onClick={copyCode}
+              className={`absolute top-4 right-4 px-3 py-1 rounded text-xs font-medium transition-all ${copied ? 'bg-green-600 text-white' : 'bg-green-800 text-green-300 hover:bg-green-700 hover:text-white'}`}
+            >
+              {copied ? '✓ Copiado' : 'Copiar'}
+            </button>
+            <pre className="text-green-300 overflow-x-auto"><code>{code}</code></pre>
+          </div>
+          <div className="mt-8 text-center">
+            <p className={`text-sm mb-4 ${dark ? 'text-green-500' : 'text-green-600'}`}>¿Otras opciones de instalación?</p>
             <div className="flex flex-wrap justify-center gap-4">
-              <button className="text-green-700 hover:text-green-500 font-medium text-sm border border-green-200 px-4 py-2 rounded-full hover:border-green-400 transition-all">
+              <button className={`font-medium text-sm px-4 py-2 rounded-full transition-all ${dark ? 'text-green-400 border border-green-700 hover:border-green-500 hover:bg-green-800/50' : 'text-green-700 border border-green-200 hover:border-green-400 hover:bg-green-50'}`}>
                 curl →
               </button>
-              <button className="text-green-700 hover:text-green-500 font-medium text-sm border border-green-200 px-4 py-2 rounded-full hover:border-green-400 transition-all">
+              <button className={`font-medium text-sm px-4 py-2 rounded-full transition-all ${dark ? 'text-green-400 border border-green-700 hover:border-green-500 hover:bg-green-800/50' : 'text-green-700 border border-green-200 hover:border-green-400 hover:bg-green-50'}`}>
                 Guía paso a paso →
               </button>
             </div>
@@ -528,60 +865,52 @@ npx al-andalus-ai@latest setup
   );
 }
 
-function Footer() {
+/* ─────────────── Footer ─────────────── */
+
+function Footer({ dark }: { dark: boolean }) {
   return (
-    <footer className="bg-green-900 text-white py-16 relative overflow-hidden">
-      <div className="absolute inset-0 opacity-5">
-        <GeometricPattern />
-      </div>
-      
+    <footer className={`py-16 relative overflow-hidden ${dark ? 'bg-green-950 border-t border-green-800' : 'bg-green-900'}`}>
+      <div className="absolute inset-0 opacity-5"><GeometricPattern /></div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="grid md:grid-cols-4 gap-12">
           <div className="md:col-span-2">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-700 rounded-lg flex items-center justify-center">
-                <StarPattern className="w-7 h-7 text-white" />
+              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-700 rounded-xl flex items-center justify-center shadow-lg">
+                <Star8 className="w-7 h-7 text-white" />
               </div>
               <div>
-                <h3 className="text-lg font-bold">Al Andalus AI Corp</h3>
-                <p className="text-green-400 text-xs tracking-wider uppercase">Inteligencia de Ingeniería Inversa</p>
+                <h3 className="text-lg font-black text-white">Al Andalus AI Corp</h3>
+                <p className="text-green-400 text-xs tracking-[0.2em] uppercase">Inteligencia de Ingeniería Inversa</p>
               </div>
             </div>
-            <p className="text-green-300/70 max-w-sm mt-4 leading-relaxed">
+            <p className="text-green-300/60 max-w-sm mt-4 leading-relaxed">
               Herramientas de ingeniería inversa impulsadas por IA para desarrolladores que quieren entender cómo funciona el software.
             </p>
           </div>
-          
           <div>
             <h4 className="font-bold text-white mb-4">Recursos</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="text-green-300/70 hover:text-white transition-colors">Documentación</a></li>
-              <li><a href="#" className="text-green-300/70 hover:text-white transition-colors">Guías</a></li>
-              <li><a href="#" className="text-green-300/70 hover:text-white transition-colors">Casos de Estudio</a></li>
-              <li><a href="#" className="text-green-300/70 hover:text-white transition-colors">Blog</a></li>
+              {['Documentación', 'Guías', 'Casos de Estudio', 'Blog'].map(l => (
+                <li key={l}><a href="#" className="text-green-300/60 hover:text-white transition-colors text-sm">{l}</a></li>
+              ))}
             </ul>
           </div>
-          
           <div>
             <h4 className="font-bold text-white mb-4">Comunidad</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="text-green-300/70 hover:text-white transition-colors">Discord</a></li>
-              <li><a href="#" className="text-green-300/70 hover:text-white transition-colors">GitHub</a></li>
-              <li><a href="#" className="text-green-300/70 hover:text-white transition-colors">FAQ</a></li>
-              <li><a href="#" className="text-green-300/70 hover:text-white transition-colors">Contacto</a></li>
+              {['Discord', 'GitHub', 'FAQ', 'Contacto'].map(l => (
+                <li key={l}><a href="#" className="text-green-300/60 hover:text-white transition-colors text-sm">{l}</a></li>
+              ))}
             </ul>
           </div>
         </div>
-        
         <div className="border-t border-green-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-green-400/60 text-sm">
-            © 2026 Al Andalus AI Corp. Todos los derechos reservados.
-          </p>
+          <p className="text-green-400/50 text-sm">© 2026 Al Andalus AI Corp. Todos los derechos reservados.</p>
           <div className="flex items-center space-x-2 mt-4 md:mt-0">
-            <div className="w-6 h-4 bg-green-700 rounded-sm"></div>
-            <div className="w-6 h-4 bg-white rounded-sm border border-green-600"></div>
-            <div className="w-6 h-4 bg-green-700 rounded-sm"></div>
-            <span className="text-green-400/60 text-xs ml-2">Hecho con orgullo andaluz</span>
+            <div className="w-8 h-5 bg-green-700 rounded-sm"></div>
+            <div className="w-8 h-5 bg-white rounded-sm border border-green-600"></div>
+            <div className="w-8 h-5 bg-green-700 rounded-sm"></div>
+            <span className="text-green-400/50 text-xs ml-2">Hecho con orgullo andaluz</span>
           </div>
         </div>
       </div>
@@ -589,17 +918,23 @@ function Footer() {
   );
 }
 
+/* ─────────────── App ─────────────── */
+
 export default function App() {
+  const { dark, toggle } = useTheme();
+
   return (
-    <div className="min-h-screen bg-white font-sans">
-      <Navbar />
-      <HeroSection />
-      <FeaturesSection />
-      <HowItWorksSection />
-      <ShowcasesSection />
-      <GuidesSection />
-      <SetupSection />
-      <Footer />
+    <div className={`min-h-screen font-sans transition-colors duration-500 ${dark ? 'bg-green-950 text-white' : 'bg-white text-green-900'}`}>
+      <Navbar dark={dark} toggleTheme={toggle} />
+      <HeroSection dark={dark} />
+      <FeaturesSection dark={dark} />
+      <HowItWorksSection dark={dark} />
+      <DinoGame dark={dark} />
+      <CalculatorDemo dark={dark} />
+      <ShowcasesSection dark={dark} />
+      <GuidesSection dark={dark} />
+      <SetupSection dark={dark} />
+      <Footer dark={dark} />
     </div>
   );
 }
