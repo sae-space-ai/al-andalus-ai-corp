@@ -10,49 +10,75 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #f0fdf4; }
+::-webkit-scrollbar-thumb { background: #15803d; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #166534; }
 
-::-webkit-scrollbar-track {
-  background: #f0fdf4;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #15803d;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #166534;
-}
-
-/* Animations */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-12px); }
 }
-
 @keyframes pulse-glow {
   0%, 100% { box-shadow: 0 0 15px rgba(21, 128, 61, 0.3); }
   50% { box-shadow: 0 0 30px rgba(21, 128, 61, 0.6); }
 }
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(3); opacity: 0; }
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+@keyframes radar {
+  0% { transform: scale(0.5); opacity: 1; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-.animate-float {
-  animation: float 4s ease-in-out infinite;
+.animate-float { animation: float 4s ease-in-out infinite; }
+.animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+.animate-scale-in { animation: scaleIn 0.6s ease-out forwards; }
+.animate-scroll { animation: scroll 30s linear infinite; }
+.animate-blink { animation: blink 1s step-end infinite; }
+.animate-pulse-ring { animation: pulse-ring 2s ease-out infinite; }
+.animate-slide-left { animation: slideInLeft 0.6s ease-out forwards; }
+.animate-slide-right { animation: slideInRight 0.6s ease-out forwards; }
+.animate-gradient { 
+  background-size: 200% 200%;
+  animation: gradientShift 5s ease infinite; 
 }
+.animate-spin-slow { animation: spin-slow 20s linear infinite; }
+.animate-radar { animation: radar 2s ease-out infinite; }
 
-.animate-pulse-glow {
-  animation: pulse-glow 3s ease-in-out infinite;
-}
-
-/* Range slider custom */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
@@ -61,7 +87,6 @@ input[type="range"] {
   background: #dcfce7;
   outline: none;
 }
-
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -73,23 +98,47 @@ input[type="range"]::-webkit-slider-thumb {
   box-shadow: 0 2px 8px rgba(21, 128, 61, 0.4);
   transition: transform 0.2s;
 }
-
-input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-}
-
+input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 input[type="range"]::-moz-range-thumb {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
+  width: 22px; height: 22px; border-radius: 50%;
   background: linear-gradient(135deg, #16a34a, #15803d);
-  cursor: pointer;
-  border: none;
+  cursor: pointer; border: none;
   box-shadow: 0 2px 8px rgba(21, 128, 61, 0.4);
 }
 
-/* Selection color */
-::selection {
-  background-color: #bbf7d0;
-  color: #14532d;
+::selection { background-color: #bbf7d0; color: #14532d; }
+
+* { transition-property: background-color, border-color; transition-duration: 0.3s; transition-timing-function: ease; }
+
+button:focus-visible, a:focus-visible, input:focus-visible {
+  outline: 2px solid #16a34a;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.terminal-cursor::after {
+  content: '▋';
+  animation: blink 1s step-end infinite;
+  color: #4ade80;
+}
+
+.map-province {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.map-province:hover {
+  filter: brightness(1.2);
+  transform: scale(1.02);
+}
+
+.tech-icon {
+  transition: all 0.3s ease;
+}
+.tech-icon:hover {
+  transform: translateY(-8px) scale(1.1);
+}
+
+.code-line {
+  animation: slideInLeft 0.4s ease-out forwards;
+  opacity: 0;
 }
