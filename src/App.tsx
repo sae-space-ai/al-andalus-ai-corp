@@ -2,8 +2,8 @@ import { useState, useEffect, useRef, useCallback, type ReactNode } from 'react'
 import { AreaChart, Area, BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 
 /* ═══════════════════════════════════════════════════
-   AL ANDALUS AI CORP — FASE 5
-   Dashboard, Graphs, Security, Team, Code Compare
+   AL ANDALUS AI CORP — FASE 6
+   Live Demo, Performance, Industries, Wizard, Roadmap
    ═══════════════════════════════════════════════════ */
 
 let lang: 'es' | 'en' = 'es';
@@ -150,11 +150,11 @@ function Navbar({ dark, toggleTheme, lang, setLang }: { dark: boolean; toggleThe
 
   const bg = dark ? scrolled ? 'bg-green-950/95 backdrop-blur-md shadow-lg' : 'bg-transparent' : scrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-transparent';
   const links = [
-    { label: lang === 'es' ? 'Dashboard' : 'Dashboard', href: '#dashboard' },
-    { label: lang === 'es' ? 'Gráfico' : 'Graph', href: '#graph' },
-    { label: lang === 'es' ? 'Seguridad' : 'Security', href: '#security' },
-    { label: lang === 'es' ? 'Equipo' : 'Team', href: '#team' },
-    { label: lang === 'es' ? 'Precios' : 'Pricing', href: '#pricing' },
+    { label: lang === 'es' ? 'Demo' : 'Demo', href: '#live-demo' },
+    { label: lang === 'es' ? 'Rendimiento' : 'Performance', href: '#performance' },
+    { label: lang === 'es' ? 'Industrias' : 'Industries', href: '#industries' },
+    { label: lang === 'es' ? 'Empezar' : 'Get Started', href: '#wizard' },
+    { label: lang === 'es' ? 'Roadmap' : 'Roadmap', href: '#roadmap' },
   ];
 
   return (
@@ -290,308 +290,159 @@ function HeroSection({ dark }: { dark: boolean }) {
   );
 }
 
-/* ─────────────── Dashboard with Charts (NEW) ─────────────── */
+/* ─────────────── Live Analysis Demo (NEW - FASE 6) ─────────────── */
 
-function DashboardSection({ dark }: { dark: boolean }) {
-  const [activeChart, setActiveChart] = useState<'area' | 'bar' | 'line' | 'pie' | 'radar'>('area');
-  const { ref, inView } = useInView(0.2);
+function LiveAnalysisDemo({ dark }: { dark: boolean }) {
+  const [isRunning, setIsRunning] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [logs, setLogs] = useState<string[]>([]);
+  const [results, setResults] = useState<any>(null);
+  const { ref, inView } = useInView(0.3);
 
-  const areaData = [
-    { name: 'Ene', analisis: 400, reconstrucciones: 240 },
-    { name: 'Feb', analisis: 520, reconstrucciones: 310 },
-    { name: 'Mar', analisis: 680, reconstrucciones: 420 },
-    { name: 'Abr', analisis: 810, reconstrucciones: 580 },
-    { name: 'May', analisis: 950, reconstrucciones: 720 },
-    { name: 'Jun', analisis: 1180, reconstrucciones: 890 },
-    { name: 'Jul', analisis: 1420, reconstrucciones: 1050 },
+  const analysisSteps = lang === 'es' ? [
+    { msg: '🔍 Iniciando análisis del programa...', delay: 500 },
+    { msg: '📦 Cargando binario en memoria...', delay: 800 },
+    { msg: '✓ Binario cargado: 2.4 MB', delay: 600 },
+    { msg: '🔬 Analizando secciones PE...', delay: 1000 },
+    { msg: '✓ Secciones encontradas: .text, .data, .rdata, .rsrc', delay: 700 },
+    { msg: '🧩 Identificando funciones exportadas...', delay: 1200 },
+    { msg: '✓ 142 funciones exportadas encontradas', delay: 800 },
+    { msg: '🔗 Mapeando dependencias...', delay: 1000 },
+    { msg: '✓ 23 dependencias externas identificadas', delay: 700 },
+    { msg: '🤖 Ejecutando análisis con IA...', delay: 1500 },
+    { msg: '✓ Análisis completado', delay: 500 },
+    { msg: '📊 Generando informe...', delay: 800 },
+    { msg: '✅ ¡Análisis finalizado!', delay: 500 },
+  ] : [
+    { msg: '🔍 Starting program analysis...', delay: 500 },
+    { msg: '📦 Loading binary into memory...', delay: 800 },
+    { msg: '✓ Binary loaded: 2.4 MB', delay: 600 },
+    { msg: '🔬 Analyzing PE sections...', delay: 1000 },
+    { msg: '✓ Sections found: .text, .data, .rdata, .rsrc', delay: 700 },
+    { msg: '🧩 Identifying exported functions...', delay: 1200 },
+    { msg: '✓ 142 exported functions found', delay: 800 },
+    { msg: '🔗 Mapping dependencies...', delay: 1000 },
+    { msg: '✓ 23 external dependencies identified', delay: 700 },
+    { msg: '🤖 Running AI analysis...', delay: 1500 },
+    { msg: '✓ Analysis completed', delay: 500 },
+    { msg: '📊 Generating report...', delay: 800 },
+    { msg: '✅ Analysis finished!', delay: 500 },
   ];
 
-  const barData = [
-    { name: 'JS', valor: 420 },
-    { name: 'TS', valor: 380 },
-    { name: 'Py', valor: 310 },
-    { name: 'C++', valor: 240 },
-    { name: 'Rust', valor: 180 },
-    { name: 'Go', valor: 150 },
-  ];
+  const startAnalysis = () => {
+    setIsRunning(true);
+    setProgress(0);
+    setLogs([]);
+    setResults(null);
 
-  const pieData = [
-    { name: 'Web Apps', value: 35 },
-    { name: 'Mobile', value: 25 },
-    { name: 'Desktop', value: 20 },
-    { name: 'APIs', value: 15 },
-    { name: 'Games', value: 5 },
-  ];
-
-  const radarData = [
-    { subject: 'Velocidad', A: 95, fullMark: 100 },
-    { subject: 'Precisión', A: 99, fullMark: 100 },
-    { subject: 'Cobertura', A: 88, fullMark: 100 },
-    { subject: 'Seguridad', A: 96, fullMark: 100 },
-    { subject: 'Escalabilidad', A: 92, fullMark: 100 },
-    { subject: 'UX', A: 90, fullMark: 100 },
-  ];
-
-  const COLORS = ['#16a34a', '#22c55e', '#4ade80', '#86efac', '#bbf7d0'];
-
-  return (
-    <section id="dashboard" ref={ref} className={`py-24 relative overflow-hidden ${dark ? 'bg-green-950' : 'bg-white'}`}>
-      <div className="absolute inset-0 opacity-[0.02]"><GeometricPattern /></div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <AnimatedSection>
-          <div className="text-center mb-12">
-            <h2 className={`text-4xl sm:text-5xl font-black mb-4 ${dark ? 'text-white' : 'text-green-900'}`}>
-              {lang === 'es' ? 'Dashboard en Vivo' : 'Live Dashboard'}
-            </h2>
-            <p className={`text-xl max-w-2xl mx-auto ${dark ? 'text-green-400/70' : 'text-green-700/60'}`}>
-              {lang === 'es' ? 'Métricas reales de análisis en tiempo real' : 'Real-time analysis metrics'}
-            </p>
-          </div>
-        </AnimatedSection>
-
-        <AnimatedSection>
-          {/* Chart type selector */}
-          <div className="flex flex-wrap justify-center gap-2 mb-8">
-            {[
-              { id: 'area' as const, label: lang === 'es' ? '📈 Crecimiento' : '📈 Growth' },
-              { id: 'bar' as const, label: lang === 'es' ? '📊 Lenguajes' : '📊 Languages' },
-              { id: 'pie' as const, label: lang === 'es' ? '🥧 Distribución' : '🥧 Distribution' },
-              { id: 'radar' as const, label: lang === 'es' ? '🎯 Rendimiento' : '🎯 Performance' },
-            ].map(chart => (
-              <button
-                key={chart.id}
-                onClick={() => setActiveChart(chart.id)}
-                className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${activeChart === chart.id
-                  ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg shadow-green-700/30'
-                  : dark ? 'bg-green-800/50 text-green-300 hover:bg-green-800' : 'bg-green-50 text-green-700 hover:bg-green-100'
-                }`}
-              >
-                {chart.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Chart container */}
-          <div className={`rounded-3xl p-6 sm:p-8 shadow-2xl border ${dark ? 'bg-green-900/50 border-green-700/50' : 'bg-white border-green-100'}`}>
-            <div className="h-[400px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                {activeChart === 'area' ? (
-                  <AreaChart data={inView ? areaData : []}>
-                    <defs>
-                      <linearGradient id="colorAnalisis" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#16a34a" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#16a34a" stopOpacity={0}/>
-                      </linearGradient>
-                      <linearGradient id="colorReconstrucciones" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#4ade80" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#4ade80" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke={dark ? '#166534' : '#dcfce7'} />
-                    <XAxis dataKey="name" stroke={dark ? '#4ade80' : '#166534'} />
-                    <YAxis stroke={dark ? '#4ade80' : '#166534'} />
-                    <Tooltip contentStyle={{ backgroundColor: dark ? '#14532d' : '#fff', border: '1px solid #16a34a', borderRadius: '12px' }} />
-                    <Area type="monotone" dataKey="analisis" stroke="#16a34a" fillOpacity={1} fill="url(#colorAnalisis)" />
-                    <Area type="monotone" dataKey="reconstrucciones" stroke="#4ade80" fillOpacity={1} fill="url(#colorReconstrucciones)" />
-                  </AreaChart>
-                ) : activeChart === 'bar' ? (
-                  <BarChart data={inView ? barData : []}>
-                    <CartesianGrid strokeDasharray="3 3" stroke={dark ? '#166534' : '#dcfce7'} />
-                    <XAxis dataKey="name" stroke={dark ? '#4ade80' : '#166534'} />
-                    <YAxis stroke={dark ? '#4ade80' : '#166534'} />
-                    <Tooltip contentStyle={{ backgroundColor: dark ? '#14532d' : '#fff', border: '1px solid #16a34a', borderRadius: '12px' }} />
-                    <Bar dataKey="valor" fill="#16a34a" radius={[8, 8, 0, 0]} />
-                  </BarChart>
-                ) : activeChart === 'pie' ? (
-                  <PieChart>
-                    <Pie
-                      data={inView ? pieData : []}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={120}
-                      fill="#16a34a"
-                      dataKey="value"
-                    >
-                      {pieData.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip contentStyle={{ backgroundColor: dark ? '#14532d' : '#fff', border: '1px solid #16a34a', borderRadius: '12px' }} />
-                  </PieChart>
-                ) : (
-                  <RadarChart data={inView ? radarData : []}>
-                    <PolarGrid stroke={dark ? '#166534' : '#dcfce7'} />
-                    <PolarAngleAxis dataKey="subject" stroke={dark ? '#4ade80' : '#166534'} />
-                    <PolarRadiusAxis stroke={dark ? '#4ade80' : '#166534'} />
-                    <Radar name="Al Andalus AI" dataKey="A" stroke="#16a34a" fill="#16a34a" fillOpacity={0.6} />
-                  </RadarChart>
-                )}
-              </ResponsiveContainer>
-            </div>
-
-            {/* Stats cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-              {[
-                { label: lang === 'es' ? 'Análisis hoy' : 'Today', value: '1,247', change: '+12%', up: true },
-                { label: lang === 'es' ? 'Precisión' : 'Accuracy', value: '99.2%', change: '+0.3%', up: true },
-                { label: lang === 'es' ? 'Tiempo medio' : 'Avg. Time', value: '2.4s', change: '-18%', up: true },
-                { label: lang === 'es' ? 'Usuarios activos' : 'Active Users', value: '847', change: '+8%', up: true },
-              ].map((stat, i) => (
-                <div key={i} className={`rounded-xl p-4 ${dark ? 'bg-green-800/30' : 'bg-green-50'}`}>
-                  <p className={`text-xs ${dark ? 'text-green-400' : 'text-green-600'}`}>{stat.label}</p>
-                  <p className={`text-2xl font-black ${dark ? 'text-white' : 'text-green-900'}`}>{stat.value}</p>
-                  <p className={`text-xs font-semibold ${stat.up ? 'text-green-500' : 'text-red-500'}`}>{stat.change}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </AnimatedSection>
-      </div>
-    </section>
-  );
-}
-
-/* ─────────────── Dependency Graph Visualizer (NEW) ─────────────── */
-
-function DependencyGraph({ dark }: { dark: boolean }) {
-  const [selectedNode, setSelectedNode] = useState<string | null>(null);
-
-  const nodes = [
-    { id: 'main', label: 'main.exe', x: 300, y: 50, type: 'entry', size: 40 },
-    { id: 'auth', label: 'auth.dll', x: 150, y: 150, type: 'core', size: 35 },
-    { id: 'ui', label: 'ui.dll', x: 450, y: 150, type: 'core', size: 35 },
-    { id: 'crypto', label: 'crypto.dll', x: 80, y: 270, type: 'lib', size: 28 },
-    { id: 'network', label: 'net.dll', x: 220, y: 270, type: 'lib', size: 28 },
-    { id: 'render', label: 'render.dll', x: 380, y: 270, type: 'lib', size: 28 },
-    { id: 'data', label: 'data.dll', x: 520, y: 270, type: 'lib', size: 28 },
-    { id: 'config', label: 'config.json', x: 300, y: 370, type: 'data', size: 24 },
-  ];
-
-  const edges = [
-    { from: 'main', to: 'auth' },
-    { from: 'main', to: 'ui' },
-    { from: 'auth', to: 'crypto' },
-    { from: 'auth', to: 'network' },
-    { from: 'ui', to: 'render' },
-    { from: 'ui', to: 'data' },
-    { from: 'crypto', to: 'config' },
-    { from: 'network', to: 'config' },
-    { from: 'data', to: 'config' },
-  ];
-
-  const getNode = (id: string) => nodes.find(n => n.id === id)!;
-  const getColor = (type: string) => {
-    switch (type) {
-      case 'entry': return '#fbbf24';
-      case 'core': return '#16a34a';
-      case 'lib': return '#4ade80';
-      case 'data': return '#86efac';
-      default: return '#16a34a';
-    }
+    let totalDelay = 0;
+    analysisSteps.forEach((step, index) => {
+      totalDelay += step.delay;
+      setTimeout(() => {
+        setLogs(prev => [...prev, step.msg]);
+        setProgress(((index + 1) / analysisSteps.length) * 100);
+        
+        if (index === analysisSteps.length - 1) {
+          setTimeout(() => {
+            setIsRunning(false);
+            setResults({
+              modules: 142,
+              dependencies: 23,
+              functions: 847,
+              vulnerabilities: 3,
+              time: '2.4s',
+            });
+          }, 500);
+        }
+      }, totalDelay);
+    });
   };
 
   return (
-    <section id="graph" className={`py-24 relative overflow-hidden ${dark ? 'bg-green-900/20' : 'bg-green-50'}`}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="live-demo" ref={ref} className={`py-24 relative overflow-hidden ${dark ? 'bg-green-950' : 'bg-white'}`}>
+      <div className="absolute inset-0 opacity-[0.02]"><GeometricPattern /></div>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <AnimatedSection>
           <div className="text-center mb-12">
             <h2 className={`text-4xl sm:text-5xl font-black mb-4 ${dark ? 'text-white' : 'text-green-900'}`}>
-              {lang === 'es' ? 'Visualizador de Dependencias' : 'Dependency Visualizer'}
+              {lang === 'es' ? 'Demo de Análisis en Vivo' : 'Live Analysis Demo'}
             </h2>
             <p className={`text-xl max-w-2xl mx-auto ${dark ? 'text-green-400/70' : 'text-green-700/60'}`}>
-              {lang === 'es' ? 'Explora cómo se conectan los módulos de un programa analizado' : 'Explore how modules connect in an analyzed program'}
+              {lang === 'es' ? 'Observa cómo Al Andalus AI analiza un programa en tiempo real' : 'Watch Al Andalus AI analyze a program in real-time'}
             </p>
           </div>
         </AnimatedSection>
 
         <AnimatedSection>
           <div className={`rounded-3xl p-6 sm:p-8 shadow-2xl border ${dark ? 'bg-green-900/50 border-green-700/50' : 'bg-white border-green-100'}`}>
-            <svg viewBox="0 0 600 420" className="w-full h-auto">
-              {/* Edges */}
-              {edges.map((edge, i) => {
-                const from = getNode(edge.from);
-                const to = getNode(edge.to);
-                const isHighlighted = selectedNode === edge.from || selectedNode === edge.to;
-                return (
-                  <line
-                    key={i}
-                    x1={from.x}
-                    y1={from.y}
-                    x2={to.x}
-                    y2={to.y}
-                    stroke={isHighlighted ? '#fbbf24' : (dark ? '#4ade80' : '#16a34a')}
-                    strokeWidth={isHighlighted ? 3 : 1.5}
-                    opacity={isHighlighted ? 1 : 0.4}
-                    className="transition-all duration-300"
-                  />
-                );
-              })}
-
-              {/* Nodes */}
-              {nodes.map(node => {
-                const isSelected = selectedNode === node.id;
-                return (
-                  <g
-                    key={node.id}
-                    className="graph-node"
-                    onClick={() => setSelectedNode(isSelected ? null : node.id)}
-                  >
-                    {/* Glow */}
-                    {isSelected && (
-                      <circle cx={node.x} cy={node.y} r={node.size + 8} fill={getColor(node.type)} opacity={0.3} className="animate-pulse-dot" />
-                    )}
-                    {/* Main circle */}
-                    <circle
-                      cx={node.x}
-                      cy={node.y}
-                      r={node.size}
-                      fill={getColor(node.type)}
-                      stroke={isSelected ? '#fff' : 'transparent'}
-                      strokeWidth={3}
-                      className="transition-all duration-300"
-                    />
-                    {/* Label */}
-                    <text
-                      x={node.x}
-                      y={node.y + 4}
-                      textAnchor="middle"
-                      className="text-xs font-bold pointer-events-none"
-                      fill={node.type === 'entry' ? '#000' : '#fff'}
-                      style={{ fontSize: '10px' }}
-                    >
-                      {node.label}
-                    </text>
-                  </g>
-                );
-              })}
-            </svg>
-
-            {/* Legend */}
-            <div className="flex flex-wrap justify-center gap-4 mt-6">
-              {[
-                { type: 'entry', label: lang === 'es' ? 'Punto de entrada' : 'Entry point' },
-                { type: 'core', label: lang === 'es' ? 'Módulo core' : 'Core module' },
-                { type: 'lib', label: lang === 'es' ? 'Biblioteca' : 'Library' },
-                { type: 'data', label: lang === 'es' ? 'Datos' : 'Data' },
-              ].map(item => (
-                <div key={item.type} className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded-full" style={{ backgroundColor: getColor(item.type) }}></div>
-                  <span className={`text-xs ${dark ? 'text-green-300' : 'text-green-700'}`}>{item.label}</span>
+            {/* Terminal */}
+            <div className="bg-green-950 rounded-xl overflow-hidden mb-6 border border-green-800/50">
+              <div className="px-4 py-3 flex items-center gap-3 border-b border-green-800/50">
+                <div className="flex gap-2">
+                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
                 </div>
-              ))}
+                <span className="text-green-400 text-xs font-mono">analysis.log</span>
+              </div>
+              <div className="p-6 font-mono text-sm min-h-[300px] max-h-[400px] overflow-y-auto relative">
+                {isRunning && <div className="scan-line"></div>}
+                {logs.map((log, i) => (
+                  <p key={i} className={`mb-2 ${log.startsWith('✓') ? 'text-green-400' : log.startsWith('✅') ? 'text-emerald-300 font-bold' : 'text-green-300'} animate-slide-left`}>
+                    {log}
+                  </p>
+                ))}
+                {isRunning && <p className="text-yellow-300 animate-pulse">⟳ {lang === 'es' ? 'Procesando...' : 'Processing...'}</p>}
+              </div>
             </div>
 
-            {selectedNode && (
-              <div className={`mt-6 rounded-xl p-4 animate-scale-in ${dark ? 'bg-green-800/50 border border-green-700' : 'bg-green-50 border border-green-200'}`}>
-                <p className={`font-bold ${dark ? 'text-white' : 'text-green-900'}`}>
-                  {lang === 'es' ? 'Módulo seleccionado' : 'Selected module'}: {getNode(selectedNode).label}
-                </p>
-                <p className={`text-sm mt-1 ${dark ? 'text-green-400' : 'text-green-700'}`}>
-                  {lang === 'es' ? `${edges.filter(e => e.from === selectedNode).length} dependencias salientes, ${edges.filter(e => e.to === selectedNode).length} entrantes` : `${edges.filter(e => e.from === selectedNode).length} outgoing, ${edges.filter(e => e.to === selectedNode).length} incoming dependencies`}
-                </p>
+            {/* Progress bar */}
+            {(isRunning || results) && (
+              <div className="mb-6">
+                <div className="flex justify-between mb-2">
+                  <span className={`text-sm font-semibold ${dark ? 'text-green-300' : 'text-green-800'}`}>
+                    {lang === 'es' ? 'Progreso' : 'Progress'}
+                  </span>
+                  <span className={`text-sm font-bold ${dark ? 'text-green-400' : 'text-green-700'}`}>
+                    {Math.round(progress)}%
+                  </span>
+                </div>
+                <div className={`h-3 rounded-full overflow-hidden ${dark ? 'bg-green-800' : 'bg-green-100'}`}>
+                  <div className="h-full bg-gradient-to-r from-green-500 to-emerald-400 progress-bar transition-all duration-300" style={{ width: `${progress}%` }}></div>
+                </div>
               </div>
+            )}
+
+            {/* Start button */}
+            {!isRunning && !results && (
+              <button onClick={startAnalysis} className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-4 rounded-full font-bold text-lg transition-all shadow-lg shadow-green-700/30 hover:shadow-xl hover:-translate-y-0.5">
+                ▶ {lang === 'es' ? 'Iniciar Análisis' : 'Start Analysis'}
+              </button>
+            )}
+
+            {/* Results */}
+            {results && (
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 animate-scale-in">
+                {[
+                  { label: lang === 'es' ? 'Módulos' : 'Modules', value: results.modules, icon: '📦' },
+                  { label: lang === 'es' ? 'Dependencias' : 'Dependencies', value: results.dependencies, icon: '🔗' },
+                  { label: lang === 'es' ? 'Funciones' : 'Functions', value: results.functions, icon: '⚙️' },
+                  { label: lang === 'es' ? 'Vulnerabilidades' : 'Vulnerabilities', value: results.vulnerabilities, icon: '⚠️' },
+                  { label: lang === 'es' ? 'Tiempo' : 'Time', value: results.time, icon: '⏱️' },
+                ].map((stat, i) => (
+                  <div key={i} className={`rounded-xl p-4 text-center ${dark ? 'bg-green-800/50' : 'bg-green-50'}`}>
+                    <div className="text-2xl mb-2">{stat.icon}</div>
+                    <p className={`text-2xl font-black ${dark ? 'text-green-400' : 'text-green-700'}`}>{stat.value}</p>
+                    <p className={`text-xs ${dark ? 'text-green-500' : 'text-green-600'}`}>{stat.label}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {results && (
+              <button onClick={startAnalysis} className={`w-full mt-4 py-3 rounded-full font-semibold transition-all ${dark ? 'bg-green-800 text-green-300 hover:bg-green-700' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}>
+                🔄 {lang === 'es' ? 'Analizar de nuevo' : 'Analyze again'}
+              </button>
             )}
           </div>
         </AnimatedSection>
@@ -600,310 +451,473 @@ function DependencyGraph({ dark }: { dark: boolean }) {
   );
 }
 
-/* ─────────────── Security Section (NEW) ─────────────── */
+/* ─────────────── Performance Comparison (NEW - FASE 6) ─────────────── */
 
-function SecuritySection({ dark }: { dark: boolean }) {
-  const features = [
-    { icon: '🔒', title: lang === 'es' ? 'Cifrado E2E' : 'E2E Encryption', desc: lang === 'es' ? 'Todos los datos se cifran con AES-256 en tránsito y en reposo.' : 'All data encrypted with AES-256 in transit and at rest.' },
-    { icon: '🛡️', title: lang === 'es' ? 'Zero Trust' : 'Zero Trust', desc: lang === 'es' ? 'Arquitectura de seguridad zero-trust con verificación continua.' : 'Zero-trust security architecture with continuous verification.' },
-    { icon: '🔑', title: lang === 'es' ? 'SOC 2 Type II' : 'SOC 2 Type II', desc: lang === 'es' ? 'Certificación SOC 2 Type II y cumplimiento GDPR.' : 'SOC 2 Type II certified and GDPR compliant.' },
-    { icon: '🌐', title: lang === 'es' ? 'On-Premise' : 'On-Premise', desc: lang === 'es' ? 'Opción de despliegue on-premise para máximo control.' : 'On-premise deployment option for maximum control.' },
-    { icon: '📊', title: lang === 'es' ? 'Auditorías' : 'Audits', desc: lang === 'es' ? 'Logs detallados y auditorías de seguridad automatizadas.' : 'Detailed logs and automated security audits.' },
-    { icon: '🔐', title: lang === 'es' ? 'SSO & MFA' : 'SSO & MFA', desc: lang === 'es' ? 'Autenticación SSO y MFA obligatoria para todos los usuarios.' : 'SSO authentication and mandatory MFA for all users.' },
-  ];
-
-  return (
-    <section id="security" className={`py-24 relative overflow-hidden ${dark ? 'bg-green-950' : 'bg-white'}`}>
-      <div className="absolute inset-0 opacity-[0.02]"><GeometricPattern /></div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <AnimatedSection>
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-500 to-green-700 rounded-2xl mb-6 shadow-xl shadow-green-700/30">
-              <span className="text-4xl">🛡️</span>
-            </div>
-            <h2 className={`text-4xl sm:text-5xl font-black mb-4 ${dark ? 'text-white' : 'text-green-900'}`}>
-              {lang === 'es' ? 'Seguridad de Nivel Enterprise' : 'Enterprise-Grade Security'}
-            </h2>
-            <p className={`text-xl max-w-2xl mx-auto ${dark ? 'text-green-400/70' : 'text-green-700/60'}`}>
-              {lang === 'es' ? 'Tu código y datos están protegidos con los más altos estándares' : 'Your code and data are protected with the highest standards'}
-            </p>
-          </div>
-        </AnimatedSection>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((f, i) => (
-            <AnimatedSection key={i} delay={i * 100}>
-              <div className={`group rounded-2xl p-6 border transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 h-full ${dark ? 'bg-green-900/40 border-green-800 hover:border-green-600' : 'bg-gradient-to-br from-white to-green-50 border-green-100 hover:border-green-400'}`}>
-                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">{f.icon}</div>
-                <h3 className={`text-lg font-bold mb-2 ${dark ? 'text-white' : 'text-green-900'}`}>{f.title}</h3>
-                <p className={`text-sm leading-relaxed ${dark ? 'text-green-400/70' : 'text-green-700/60'}`}>{f.desc}</p>
-              </div>
-            </AnimatedSection>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ─────────────── Code Compare (NEW) ─────────────── */
-
-function CodeCompareSection({ dark }: { dark: boolean }) {
-  const [position, setPosition] = useState(50);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-
-  const handleMove = useCallback((clientX: number) => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
-    setPosition((x / rect.width) * 100);
-  }, []);
+function PerformanceComparison({ dark }: { dark: boolean }) {
+  const { ref, inView } = useInView(0.3);
+  const [animated, setAnimated] = useState(false);
 
   useEffect(() => {
-    if (!isDragging) return;
-    const handleMouseMove = (e: MouseEvent) => handleMove(e.clientX);
-    const handleTouchMove = (e: TouchEvent) => handleMove(e.touches[0].clientX);
-    const handleUp = () => setIsDragging(false);
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('touchmove', handleTouchMove);
-    window.addEventListener('mouseup', handleUp);
-    window.addEventListener('touchend', handleUp);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('mouseup', handleUp);
-      window.removeEventListener('touchend', handleUp);
-    };
-  }, [isDragging, handleMove]);
+    if (inView && !animated) setAnimated(true);
+  }, [inView, animated]);
 
-  const originalCode = `// Original obfuscated code
-function _(a,b){var c=a.length;
-for(var i=0;i<c;i++){
-a[i]=a[i]^b[i%b.length];
-}return a;}`;
-
-  const reconstructedCode = `// Reconstructed by Al Andalus AI
-function xorDecrypt(data, key) {
-  const length = data.length;
-  for (let i = 0; i < length; i++) {
-    data[i] = data[i] ^ key[i % key.length];
-  }
-  return data;
-}
-
-// Usage example:
-const decrypted = xorDecrypt(
-  encryptedBuffer,
-  Buffer.from('secret-key')
-);`;
-
-  return (
-    <section className={`py-24 relative overflow-hidden ${dark ? 'bg-green-900/20' : 'bg-green-50'}`}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <AnimatedSection>
-          <div className="text-center mb-12">
-            <h2 className={`text-4xl sm:text-5xl font-black mb-4 ${dark ? 'text-white' : 'text-green-900'}`}>
-              {lang === 'es' ? 'De Ofuscado a Legible' : 'From Obfuscated to Readable'}
-            </h2>
-            <p className={`text-xl max-w-2xl mx-auto ${dark ? 'text-green-400/70' : 'text-green-700/60'}`}>
-              {lang === 'es' ? 'Al Andalus AI reconstruye código ofuscado automáticamente' : 'Al Andalus AI automatically reconstructs obfuscated code'}
-            </p>
-          </div>
-        </AnimatedSection>
-
-        <AnimatedSection>
-          <div ref={containerRef} className={`relative rounded-3xl overflow-hidden shadow-2xl border-4 ${dark ? 'border-green-700' : 'border-green-200'} h-[450px] cursor-ew-resize select-none`} onMouseDown={() => setIsDragging(true)} onTouchStart={() => setIsDragging(true)}>
-            {/* Original (left) */}
-            <div className="absolute inset-0 bg-gray-900 flex">
-              <div className="w-full p-6 font-mono text-sm overflow-hidden">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                  <span className="text-gray-400 text-xs ml-2">original.js</span>
-                </div>
-                <pre className="text-gray-400 whitespace-pre-wrap">{originalCode}</pre>
-              </div>
-            </div>
-            {/* Reconstructed (right) */}
-            <div className="absolute inset-0 bg-green-950 flex" style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}>
-              <div className="w-full p-6 font-mono text-sm overflow-hidden">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                  <span className="text-green-400 text-xs ml-2">reconstructed.ts</span>
-                </div>
-                <pre className="text-green-300 whitespace-pre-wrap">{reconstructedCode}</pre>
-              </div>
-            </div>
-            {/* Slider */}
-            <div className="absolute top-0 bottom-0 w-1 bg-white shadow-lg" style={{ left: `${position}%` }}>
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full shadow-xl flex items-center justify-center">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
-                </svg>
-              </div>
-            </div>
-            {/* Labels */}
-            <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-bold">{lang === 'es' ? 'Original' : 'Original'}</div>
-            <div className="absolute top-4 right-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-bold">{lang === 'es' ? 'Reconstruido' : 'Reconstructed'}</div>
-          </div>
-          <p className={`text-center mt-4 text-sm ${dark ? 'text-green-500' : 'text-green-600'}`}>
-            ← {lang === 'es' ? 'Arrastra para comparar' : 'Drag to compare'} →
-          </p>
-        </AnimatedSection>
-      </div>
-    </section>
-  );
-}
-
-/* ─────────────── Team Section (NEW) ─────────────── */
-
-function TeamSection({ dark }: { dark: boolean }) {
-  const team = [
-    { name: 'María López', role: lang === 'es' ? 'CEO & Fundadora' : 'CEO & Founder', avatar: '👩‍💼', desc: lang === 'es' ? 'Ex-Google, experta en IA' : 'Ex-Google, AI expert' },
-    { name: 'Ahmed Benali', role: lang === 'es' ? 'CTO' : 'CTO', avatar: '👨‍💻', desc: lang === 'es' ? 'PhD en Seguridad Informática' : 'PhD in Computer Security' },
-    { name: 'Carlos Ruiz', role: lang === 'es' ? 'Lead Engineer' : 'Lead Engineer', avatar: '🧑‍🔬', desc: lang === 'es' ? '15 años en reverse engineering' : '15 years in reverse engineering' },
-    { name: 'Lucía Martín', role: lang === 'es' ? 'Head of Product' : 'Head of Product', avatar: '👩‍🎨', desc: lang === 'es' ? 'Ex-Microsoft, UX specialist' : 'Ex-Microsoft, UX specialist' },
-    { name: 'Javier Torres', role: lang === 'es' ? 'Security Lead' : 'Security Lead', avatar: '🧑‍💻', desc: lang === 'es' ? 'Ex-NSA, cryptography expert' : 'Ex-NSA, cryptography expert' },
-    { name: 'Ana García', role: lang === 'es' ? 'ML Engineer' : 'ML Engineer', avatar: '👩‍🔬', desc: lang === 'es' ? 'PhD en Deep Learning' : 'PhD in Deep Learning' },
+  const comparisons = [
+    { method: lang === 'es' ? 'Manual' : 'Manual', time: 40, color: 'from-red-500 to-red-600' },
+    { method: 'IDA Pro', time: 28, color: 'from-orange-500 to-orange-600' },
+    { method: 'Ghidra', time: 22, color: 'from-yellow-500 to-yellow-600' },
+    { method: lang === 'es' ? 'Al Andalus AI' : 'Al Andalus AI', time: 2, color: 'from-green-500 to-emerald-600' },
   ];
 
   return (
-    <section id="team" className={`py-24 relative overflow-hidden ${dark ? 'bg-green-950' : 'bg-white'}`}>
-      <div className="absolute inset-0 opacity-[0.02]"><GeometricPattern /></div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <AnimatedSection>
-          <div className="text-center mb-16">
-            <h2 className={`text-4xl sm:text-5xl font-black mb-4 ${dark ? 'text-white' : 'text-green-900'}`}>
-              {lang === 'es' ? 'Nuestro Equipo' : 'Our Team'}
-            </h2>
-            <p className={`text-xl max-w-2xl mx-auto ${dark ? 'text-green-400/70' : 'text-green-700/60'}`}>
-              {lang === 'es' ? 'Expertos apasionados por la ingeniería inversa y la IA' : 'Experts passionate about reverse engineering and AI'}
-            </p>
-          </div>
-        </AnimatedSection>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {team.map((member, i) => (
-            <AnimatedSection key={i} delay={i * 100}>
-              <div className={`team-card group rounded-2xl p-6 border text-center ${dark ? 'bg-green-900/40 border-green-800 hover:border-green-600' : 'bg-gradient-to-br from-white to-green-50 border-green-100 hover:border-green-400 hover:shadow-xl'}`}>
-                <div className="team-avatar w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-400 to-green-700 flex items-center justify-center text-5xl shadow-lg">
-                  {member.avatar}
-                </div>
-                <h3 className={`text-xl font-bold mb-1 ${dark ? 'text-white' : 'text-green-900'}`}>{member.name}</h3>
-                <p className={`text-sm font-semibold mb-2 ${dark ? 'text-green-400' : 'text-green-600'}`}>{member.role}</p>
-                <p className={`text-xs ${dark ? 'text-green-500/70' : 'text-green-700/60'}`}>{member.desc}</p>
-              </div>
-            </AnimatedSection>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ─────────────── Prompt Builder (NEW) ─────────────── */
-
-function PromptBuilder({ dark }: { dark: boolean }) {
-  const [target, setTarget] = useState('web-app');
-  const [goal, setGoal] = useState('understand');
-  const [depth, setDepth] = useState('deep');
-  const [output, setOutput] = useState('');
-
-  const generatePrompt = () => {
-    const targets: Record<string, string> = {
-      'web-app': lang === 'es' ? 'esta aplicación web' : 'this web application',
-      'mobile-app': lang === 'es' ? 'esta app móvil' : 'this mobile app',
-      'desktop-app': lang === 'es' ? 'esta aplicación de escritorio' : 'this desktop application',
-      'game': lang === 'es' ? 'este juego' : 'this game',
-      'binary': lang === 'es' ? 'este binario nativo' : 'this native binary',
-    };
-    const goals: Record<string, string> = {
-      'understand': lang === 'es' ? 'entender cómo funciona' : 'understand how it works',
-      'rebuild': lang === 'es' ? 'reconstruir su funcionalidad' : 'rebuild its functionality',
-      'find-vuln': lang === 'es' ? 'encontrar vulnerabilidades' : 'find vulnerabilities',
-      'document': lang === 'es' ? 'documentar su código' : 'document its code',
-    };
-    const depths: Record<string, string> = {
-      'quick': lang === 'es' ? 'análisis rápido' : 'quick analysis',
-      'deep': lang === 'es' ? 'análisis profundo' : 'deep analysis',
-      'complete': lang === 'es' ? 'análisis completo con reconstrucción' : 'complete analysis with reconstruction',
-    };
-
-    const prompt = lang === 'es'
-      ? `Usa Al Andalus AI para inspeccionar ${targets[target]}. Quiero ${goals[goal]}. Realiza un ${depths[depth]} y muéstrame el código fuente, las dependencias y las llamadas críticas.`
-      : `Use Al Andalus AI to inspect ${targets[target]}. I want to ${goals[goal]}. Perform a ${depths[depth]} and show me the source code, dependencies, and critical calls.`;
-
-    setOutput(prompt);
-  };
-
-  useEffect(() => { generatePrompt(); }, [target, goal, depth]);
-
-  return (
-    <section className={`py-24 relative overflow-hidden ${dark ? 'bg-green-900/20' : 'bg-green-50'}`}>
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="performance" ref={ref} className={`py-24 relative overflow-hidden ${dark ? 'bg-green-900/20' : 'bg-green-50'}`}>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <AnimatedSection>
           <div className="text-center mb-12">
             <h2 className={`text-4xl sm:text-5xl font-black mb-4 ${dark ? 'text-white' : 'text-green-900'}`}>
-              {lang === 'es' ? 'Generador de Prompts' : 'Prompt Builder'}
+              {lang === 'es' ? 'Comparación de Rendimiento' : 'Performance Comparison'}
             </h2>
             <p className={`text-xl max-w-2xl mx-auto ${dark ? 'text-green-400/70' : 'text-green-700/60'}`}>
-              {lang === 'es' ? 'Crea el prompt perfecto para tu agente de IA' : 'Create the perfect prompt for your AI agent'}
+              {lang === 'es' ? 'Horas para analizar un programa típico' : 'Hours to analyze a typical program'}
             </p>
           </div>
         </AnimatedSection>
 
         <AnimatedSection>
           <div className={`rounded-3xl p-8 shadow-2xl border ${dark ? 'bg-green-900/50 border-green-700/50' : 'bg-white border-green-100'}`}>
-            <div className="grid md:grid-cols-3 gap-6 mb-8">
-              <div>
-                <label className={`block text-sm font-bold mb-2 ${dark ? 'text-green-300' : 'text-green-800'}`}>
-                  {lang === 'es' ? '🎯 Objetivo' : '🎯 Target'}
-                </label>
-                <select value={target} onChange={e => setTarget(e.target.value)} className={`w-full px-4 py-3 rounded-xl border ${dark ? 'bg-green-800 border-green-700 text-white' : 'bg-white border-green-200 text-green-900'}`}>
-                  <option value="web-app">{lang === 'es' ? 'App Web' : 'Web App'}</option>
-                  <option value="mobile-app">{lang === 'es' ? 'App Móvil' : 'Mobile App'}</option>
-                  <option value="desktop-app">{lang === 'es' ? 'App Escritorio' : 'Desktop App'}</option>
-                  <option value="game">{lang === 'es' ? 'Juego' : 'Game'}</option>
-                  <option value="binary">{lang === 'es' ? 'Binario' : 'Binary'}</option>
-                </select>
-              </div>
-              <div>
-                <label className={`block text-sm font-bold mb-2 ${dark ? 'text-green-300' : 'text-green-800'}`}>
-                  {lang === 'es' ? '🎯 Meta' : '🎯 Goal'}
-                </label>
-                <select value={goal} onChange={e => setGoal(e.target.value)} className={`w-full px-4 py-3 rounded-xl border ${dark ? 'bg-green-800 border-green-700 text-white' : 'bg-white border-green-200 text-green-900'}`}>
-                  <option value="understand">{lang === 'es' ? 'Entender' : 'Understand'}</option>
-                  <option value="rebuild">{lang === 'es' ? 'Reconstruir' : 'Rebuild'}</option>
-                  <option value="find-vuln">{lang === 'es' ? 'Encontrar vulnerabilidades' : 'Find vulnerabilities'}</option>
-                  <option value="document">{lang === 'es' ? 'Documentar' : 'Document'}</option>
-                </select>
-              </div>
-              <div>
-                <label className={`block text-sm font-bold mb-2 ${dark ? 'text-green-300' : 'text-green-800'}`}>
-                  {lang === 'es' ? '🔍 Profundidad' : '🔍 Depth'}
-                </label>
-                <select value={depth} onChange={e => setDepth(e.target.value)} className={`w-full px-4 py-3 rounded-xl border ${dark ? 'bg-green-800 border-green-700 text-white' : 'bg-white border-green-200 text-green-900'}`}>
-                  <option value="quick">{lang === 'es' ? 'Rápido' : 'Quick'}</option>
-                  <option value="deep">{lang === 'es' ? 'Profundo' : 'Deep'}</option>
-                  <option value="complete">{lang === 'es' ? 'Completo' : 'Complete'}</option>
-                </select>
-              </div>
+            <div className="space-y-6">
+              {comparisons.map((comp, i) => (
+                <div key={i} className="group">
+                  <div className="flex justify-between mb-2">
+                    <span className={`font-bold ${dark ? 'text-white' : 'text-green-900'}`}>{comp.method}</span>
+                    <span className={`font-bold ${dark ? 'text-green-400' : 'text-green-700'}`}>{comp.time}h</span>
+                  </div>
+                  <div className={`h-12 rounded-xl overflow-hidden ${dark ? 'bg-green-800/30' : 'bg-green-100'}`}>
+                    <div
+                      className={`h-full bg-gradient-to-r ${comp.color} rounded-xl flex items-center justify-end px-4 transition-all duration-1000 ease-out`}
+                      style={{ width: animated ? `${(comp.time / 40) * 100}%` : '0%' }}
+                    >
+                      {animated && (
+                        <span className="text-white font-bold text-sm">
+                          {comp.time === 2 ? '20x más rápido' : comp.time === 40 ? '40h' : `${comp.time}h`}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
 
-            <div className="bg-green-950 rounded-xl p-6 font-mono text-sm border border-green-800/50">
-              <p className="text-green-400 mb-2 text-xs">{lang === 'es' ? 'Prompt generado:' : 'Generated prompt:'}</p>
-              <p className="text-white">{output}</p>
+            <div className={`mt-8 p-6 rounded-xl ${dark ? 'bg-green-800/30 border border-green-700' : 'bg-green-50 border border-green-200'}`}>
+              <p className={`text-center font-bold text-lg ${dark ? 'text-green-300' : 'text-green-800'}`}>
+                {lang === 'es' ? '🚀 Al Andalus AI es 20x más rápido que el método manual' : '🚀 Al Andalus AI is 20x faster than manual method'}
+              </p>
             </div>
-
-            <button onClick={() => { navigator.clipboard.writeText(output); }} className="mt-4 w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-3 rounded-full font-bold transition-all shadow-lg hover:-translate-y-0.5">
-              📋 {lang === 'es' ? 'Copiar Prompt' : 'Copy Prompt'}
-            </button>
           </div>
         </AnimatedSection>
+      </div>
+    </section>
+  );
+}
+
+/* ─────────────── Industry Use Cases (NEW - FASE 6) ─────────────── */
+
+function IndustryUseCases({ dark }: { dark: boolean }) {
+  const [activeIndustry, setActiveIndustry] = useState(0);
+
+  const industries = [
+    {
+      icon: '🎮',
+      title: lang === 'es' ? 'Gaming' : 'Gaming',
+      desc: lang === 'es' ? 'Analiza mecánicas de juego, reconstruye lógica de IA enemiga, optimiza rendimiento' : 'Analyze game mechanics, reconstruct enemy AI logic, optimize performance',
+      features: lang === 'es' ? ['Análisis de motores de juego', 'Reconstrucción de shaders', 'Optimización de assets'] : ['Game engine analysis', 'Shader reconstruction', 'Asset optimization'],
+    },
+    {
+      icon: '🏦',
+      title: lang === 'es' ? 'Fintech' : 'Fintech',
+      desc: lang === 'es' ? 'Auditoría de seguridad, análisis de protocolos de pago, verificación de cifrado' : 'Security auditing, payment protocol analysis, encryption verification',
+      features: lang === 'es' ? ['Auditoría de seguridad', 'Análisis de protocolos', 'Verificación de cifrado'] : ['Security auditing', 'Protocol analysis', 'Encryption verification'],
+    },
+    {
+      icon: '🔒',
+      title: lang === 'es' ? 'Ciberseguridad' : 'Cybersecurity',
+      desc: lang === 'es' ? 'Detección de malware, análisis de vulnerabilidades, investigación de incidentes' : 'Malware detection, vulnerability analysis, incident investigation',
+      features: lang === 'es' ? ['Detección de malware', 'Análisis de vulnerabilidades', 'Investigación forense'] : ['Malware detection', 'Vulnerability analysis', 'Forensic investigation'],
+    },
+    {
+      icon: '📱',
+      title: lang === 'es' ? 'Mobile Apps' : 'Mobile Apps',
+      desc: lang === 'es' ? 'Análisis de apps iOS/Android, ingeniería inversa de APIs, optimización de rendimiento' : 'iOS/Android app analysis, API reverse engineering, performance optimization',
+      features: lang === 'es' ? ['Análisis de apps móviles', 'Ingeniería inversa de APIs', 'Optimización de rendimiento'] : ['Mobile app analysis', 'API reverse engineering', 'Performance optimization'],
+    },
+    {
+      icon: '🌐',
+      title: lang === 'es' ? 'Web Development' : 'Web Development',
+      desc: lang === 'es' ? 'Análisis de SPAs, reconstrucción de APIs, auditoría de seguridad web' : 'SPA analysis, API reconstruction, web security auditing',
+      features: lang === 'es' ? ['Análisis de aplicaciones web', 'Reconstrucción de APIs', 'Auditoría de seguridad'] : ['Web app analysis', 'API reconstruction', 'Security auditing'],
+    },
+    {
+      icon: '🏥',
+      title: lang === 'es' ? 'Healthcare' : 'Healthcare',
+      desc: lang === 'es' ? 'Análisis de dispositivos médicos, verificación de cumplimiento, investigación de protocolos' : 'Medical device analysis, compliance verification, protocol investigation',
+      features: lang === 'es' ? ['Análisis de dispositivos médicos', 'Verificación de cumplimiento', 'Investigación de protocolos'] : ['Medical device analysis', 'Compliance verification', 'Protocol investigation'],
+    },
+  ];
+
+  return (
+    <section id="industries" className={`py-24 relative overflow-hidden ${dark ? 'bg-green-950' : 'bg-white'}`}>
+      <div className="absolute inset-0 opacity-[0.02]"><GeometricPattern /></div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <AnimatedSection>
+          <div className="text-center mb-16">
+            <h2 className={`text-4xl sm:text-5xl font-black mb-4 ${dark ? 'text-white' : 'text-green-900'}`}>
+              {lang === 'es' ? 'Casos de Uso por Industria' : 'Industry Use Cases'}
+            </h2>
+            <p className={`text-xl max-w-2xl mx-auto ${dark ? 'text-green-400/70' : 'text-green-700/60'}`}>
+              {lang === 'es' ? 'Soluciones adaptadas a cada sector' : 'Solutions adapted to each sector'}
+            </p>
+          </div>
+        </AnimatedSection>
+
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Industry selector */}
+          <div className="lg:col-span-1 space-y-3">
+            {industries.map((industry, i) => (
+              <button
+                key={i}
+                onClick={() => setActiveIndustry(i)}
+                className={`industry-card w-full text-left p-4 rounded-xl transition-all ${activeIndustry === i
+                  ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg shadow-green-700/30'
+                  : dark ? 'bg-green-900/40 text-green-300 hover:bg-green-900/60' : 'bg-green-50 text-green-700 hover:bg-green-100'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="industry-icon text-3xl">{industry.icon}</span>
+                  <span className="font-bold">{industry.title}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {/* Industry details */}
+          <div className="lg:col-span-2">
+            <div className={`rounded-3xl p-8 shadow-2xl border h-full ${dark ? 'bg-green-900/50 border-green-700/50' : 'bg-white border-green-100'}`}>
+              <div className="text-6xl mb-6">{industries[activeIndustry].icon}</div>
+              <h3 className={`text-3xl font-black mb-4 ${dark ? 'text-white' : 'text-green-900'}`}>
+                {industries[activeIndustry].title}
+              </h3>
+              <p className={`text-lg mb-6 ${dark ? 'text-green-300/80' : 'text-green-700/70'}`}>
+                {industries[activeIndustry].desc}
+              </p>
+              <div className="space-y-3">
+                {industries[activeIndustry].features.map((feature, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <svg className={`w-6 h-6 flex-shrink-0 ${dark ? 'text-green-400' : 'text-green-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className={`font-medium ${dark ? 'text-green-200' : 'text-green-800'}`}>{feature}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─────────────── Getting Started Wizard (NEW - FASE 6) ─────────────── */
+
+function GettingStartedWizard({ dark }: { dark: boolean }) {
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const steps = lang === 'es' ? [
+    {
+      title: 'Instala Al Andalus AI',
+      icon: '📦',
+      content: 'Ejecuta el comando de instalación en tu terminal',
+      code: 'npx al-andalus-ai@latest setup',
+    },
+    {
+      title: 'Conecta tu agente',
+      icon: '🔗',
+      content: 'Conecta Al Andalus AI a tu agente de codificación favorito',
+      code: 'al-andalus-ai connect --agent=claude',
+    },
+    {
+      title: 'Analiza tu primer programa',
+      icon: '🔍',
+      content: 'Pregunta a tu agente sobre cualquier software',
+      code: 'Analiza esta aplicación y explícame cómo funciona',
+    },
+    {
+      title: '¡Listo!',
+      icon: '🚀',
+      content: 'Ya puedes usar Al Andalus AI para ingeniería inversa',
+      code: '',
+    },
+  ] : [
+    {
+      title: 'Install Al Andalus AI',
+      icon: '📦',
+      content: 'Run the installation command in your terminal',
+      code: 'npx al-andalus-ai@latest setup',
+    },
+    {
+      title: 'Connect your agent',
+      icon: '🔗',
+      content: 'Connect Al Andalus AI to your favorite coding agent',
+      code: 'al-andalus-ai connect --agent=claude',
+    },
+    {
+      title: 'Analyze your first program',
+      icon: '🔍',
+      content: 'Ask your agent about any software',
+      code: 'Analyze this application and explain how it works',
+    },
+    {
+      title: 'Ready!',
+      icon: '🚀',
+      content: 'You can now use Al Andalus AI for reverse engineering',
+      code: '',
+    },
+  ];
+
+  return (
+    <section id="wizard" className={`py-24 relative overflow-hidden ${dark ? 'bg-green-900/20' : 'bg-green-50'}`}>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <AnimatedSection>
+          <div className="text-center mb-12">
+            <h2 className={`text-4xl sm:text-5xl font-black mb-4 ${dark ? 'text-white' : 'text-green-900'}`}>
+              {lang === 'es' ? 'Cómo Empezar' : 'Getting Started'}
+            </h2>
+            <p className={`text-xl max-w-2xl mx-auto ${dark ? 'text-green-400/70' : 'text-green-700/60'}`}>
+              {lang === 'es' ? '4 pasos simples para comenzar' : '4 simple steps to get started'}
+            </p>
+          </div>
+        </AnimatedSection>
+
+        <AnimatedSection>
+          <div className={`rounded-3xl p-8 shadow-2xl border ${dark ? 'bg-green-900/50 border-green-700/50' : 'bg-white border-green-100'}`}>
+            {/* Step indicators */}
+            <div className="flex items-center justify-between mb-12">
+              {steps.map((step, i) => (
+                <div key={i} className="flex items-center">
+                  <button
+                    onClick={() => setCurrentStep(i)}
+                    className={`wizard-step w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg transition-all ${i === currentStep
+                      ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg scale-110'
+                      : i < currentStep
+                        ? 'bg-green-500 text-white'
+                        : dark ? 'bg-green-800 text-green-400' : 'bg-green-100 text-green-600'
+                    }`}
+                  >
+                    {i < currentStep ? '✓' : i + 1}
+                  </button>
+                  {i < steps.length - 1 && (
+                    <div className={`hidden sm:block w-12 md:w-24 h-1 mx-2 rounded ${i < currentStep ? 'bg-green-500' : dark ? 'bg-green-800' : 'bg-green-200'}`}></div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Step content */}
+            <div className="text-center mb-8">
+              <div className="text-6xl mb-4">{steps[currentStep].icon}</div>
+              <h3 className={`text-2xl font-black mb-2 ${dark ? 'text-white' : 'text-green-900'}`}>
+                {steps[currentStep].title}
+              </h3>
+              <p className={`text-lg ${dark ? 'text-green-300/80' : 'text-green-700/70'}`}>
+                {steps[currentStep].content}
+              </p>
+            </div>
+
+            {/* Code block */}
+            {steps[currentStep].code && (
+              <div className="bg-green-950 rounded-xl p-6 font-mono text-sm border border-green-800/50 mb-8">
+                <p className="text-green-400">$ <span className="text-white">{steps[currentStep].code}</span></p>
+              </div>
+            )}
+
+            {/* Navigation buttons */}
+            <div className="flex justify-between">
+              <button
+                onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
+                disabled={currentStep === 0}
+                className={`px-6 py-3 rounded-full font-semibold transition-all ${currentStep === 0
+                  ? 'opacity-50 cursor-not-allowed'
+                  : dark ? 'bg-green-800 text-green-300 hover:bg-green-700' : 'bg-green-100 text-green-700 hover:bg-green-200'
+                }`}
+              >
+                ← {lang === 'es' ? 'Anterior' : 'Previous'}
+              </button>
+              <button
+                onClick={() => setCurrentStep(Math.min(steps.length - 1, currentStep + 1))}
+                disabled={currentStep === steps.length - 1}
+                className={`px-6 py-3 rounded-full font-semibold transition-all ${currentStep === steps.length - 1
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 shadow-lg'
+                }`}
+              >
+                {lang === 'es' ? 'Siguiente' : 'Next'} →
+              </button>
+            </div>
+          </div>
+        </AnimatedSection>
+      </div>
+    </section>
+  );
+}
+
+/* ─────────────── Roadmap Timeline (NEW - FASE 6) ─────────────── */
+
+function RoadmapTimeline({ dark }: { dark: boolean }) {
+  const roadmap = lang === 'es' ? [
+    {
+      quarter: 'Q1 2026',
+      status: 'completed',
+      items: [
+        'Soporte para Rust',
+        'Análisis de WebAssembly',
+        'Mejoras de rendimiento 300%',
+      ],
+    },
+    {
+      quarter: 'Q2 2026',
+      status: 'in-progress',
+      items: [
+        'Integración con VS Code',
+        'API pública beta',
+        'Soporte para Swift/Kotlin',
+      ],
+    },
+    {
+      quarter: 'Q3 2026',
+      status: 'planned',
+      items: [
+        'Análisis de blockchain',
+        'Plugin para JetBrains',
+        'Modo colaborativo',
+      ],
+    },
+    {
+      quarter: 'Q4 2026',
+      status: 'planned',
+      items: [
+        'Análisis de IoT',
+        'Soporte para quantum computing',
+        'Marketplace de plugins',
+      ],
+    },
+  ] : [
+    {
+      quarter: 'Q1 2026',
+      status: 'completed',
+      items: [
+        'Rust support',
+        'WebAssembly analysis',
+        '300% performance improvements',
+      ],
+    },
+    {
+      quarter: 'Q2 2026',
+      status: 'in-progress',
+      items: [
+        'VS Code integration',
+        'Public API beta',
+        'Swift/Kotlin support',
+      ],
+    },
+    {
+      quarter: 'Q3 2026',
+      status: 'planned',
+      items: [
+        'Blockchain analysis',
+        'JetBrains plugin',
+        'Collaborative mode',
+      ],
+    },
+    {
+      quarter: 'Q4 2026',
+      status: 'planned',
+      items: [
+        'IoT analysis',
+        'Quantum computing support',
+        'Plugin marketplace',
+      ],
+    },
+  ];
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed': return 'from-green-500 to-green-600';
+      case 'in-progress': return 'from-yellow-500 to-orange-500';
+      case 'planned': return dark ? 'from-green-800 to-green-900' : 'from-green-200 to-green-300';
+      default: return 'from-green-500 to-green-600';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'completed': return '✓';
+      case 'in-progress': return '⟳';
+      case 'planned': return '○';
+      default: return '○';
+    }
+  };
+
+  return (
+    <section id="roadmap" className={`py-24 relative overflow-hidden ${dark ? 'bg-green-950' : 'bg-white'}`}>
+      <div className="absolute inset-0 opacity-[0.02]"><GeometricPattern /></div>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <AnimatedSection>
+          <div className="text-center mb-16">
+            <h2 className={`text-4xl sm:text-5xl font-black mb-4 ${dark ? 'text-white' : 'text-green-900'}`}>
+              Roadmap 2026
+            </h2>
+            <p className={`text-xl max-w-2xl mx-auto ${dark ? 'text-green-400/70' : 'text-green-700/60'}`}>
+              {lang === 'es' ? 'Nuevas características y mejoras planificadas' : 'Planned new features and improvements'}
+            </p>
+          </div>
+        </AnimatedSection>
+
+        <div className="space-y-8">
+          {roadmap.map((quarter, i) => (
+            <AnimatedSection key={i} delay={i * 150}>
+              <div className={`roadmap-item rounded-2xl p-6 border transition-all ${dark ? 'bg-green-900/40 border-green-800 hover:border-green-600' : 'bg-white border-green-100 hover:border-green-400 hover:shadow-xl'}`}>
+                <div className="flex items-start gap-4">
+                  <div className={`flex-shrink-0 w-16 h-16 rounded-xl bg-gradient-to-br ${getStatusColor(quarter.status)} flex items-center justify-center text-white font-black text-xl shadow-lg`}>
+                    {getStatusIcon(quarter.status)}
+                  </div>
+                  <div className="flex-grow">
+                    <div className="flex items-center gap-3 mb-3">
+                      <h3 className={`text-2xl font-black ${dark ? 'text-white' : 'text-green-900'}`}>
+                        {quarter.quarter}
+                      </h3>
+                      <span className={`text-xs font-bold px-3 py-1 rounded-full ${
+                        quarter.status === 'completed' ? 'bg-green-500 text-white' :
+                        quarter.status === 'in-progress' ? 'bg-yellow-500 text-white' :
+                        dark ? 'bg-green-800 text-green-300' : 'bg-green-100 text-green-700'
+                      }`}>
+                        {quarter.status === 'completed' ? (lang === 'es' ? 'Completado' : 'Completed') :
+                         quarter.status === 'in-progress' ? (lang === 'es' ? 'En progreso' : 'In Progress') :
+                         (lang === 'es' ? 'Planificado' : 'Planned')}
+                      </span>
+                    </div>
+                    <ul className="space-y-2">
+                      {quarter.items.map((item, j) => (
+                        <li key={j} className={`flex items-center gap-2 ${dark ? 'text-green-300' : 'text-green-700'}`}>
+                          <span className="text-green-500">•</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </AnimatedSection>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -920,7 +934,7 @@ function PricingSection({ dark }: { dark: boolean }) {
   ];
 
   return (
-    <section id="pricing" className={`py-24 relative overflow-hidden ${dark ? 'bg-green-950' : 'bg-white'}`}>
+    <section id="pricing" className={`py-24 relative overflow-hidden ${dark ? 'bg-green-900/20' : 'bg-green-50'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <AnimatedSection>
           <div className="text-center mb-12">
@@ -983,7 +997,7 @@ function FAQSection({ dark }: { dark: boolean }) {
   ];
 
   return (
-    <section id="faq" className={`py-24 relative overflow-hidden ${dark ? 'bg-green-900/20' : 'bg-green-50'}`}>
+    <section id="faq" className={`py-24 relative overflow-hidden ${dark ? 'bg-green-900/20' : 'bg-white'}`}>
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <AnimatedSection>
           <div className="text-center mb-12">
@@ -1109,12 +1123,11 @@ export default function App() {
       <ScrollProgressBar />
       <Navbar dark={dark} toggleTheme={toggle} lang={currentLang} setLang={setLang} />
       <HeroSection dark={dark} />
-      <DashboardSection dark={dark} />
-      <DependencyGraph dark={dark} />
-      <CodeCompareSection dark={dark} />
-      <SecuritySection dark={dark} />
-      <PromptBuilder dark={dark} />
-      <TeamSection dark={dark} />
+      <LiveAnalysisDemo dark={dark} />
+      <PerformanceComparison dark={dark} />
+      <IndustryUseCases dark={dark} />
+      <GettingStartedWizard dark={dark} />
+      <RoadmapTimeline dark={dark} />
       <PricingSection dark={dark} />
       <FAQSection dark={dark} />
       <NewsletterSection dark={dark} />
